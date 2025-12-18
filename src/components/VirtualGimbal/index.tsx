@@ -218,76 +218,181 @@ function GimbalModel() {
             {/* Roll motor */}
             <MotorHousing position={[0, 0.08, 0]} rotation={[Math.PI / 2, 0, 0]} />
 
-            {/* Camera quick release plate */}
-            <mesh position={[0, -0.12, 0]} material={bodyMaterial}>
-              <boxGeometry args={[0.5, 0.04, 0.4]} />
+            {/* ========== QUICK RELEASE PLATE ASSEMBLY ========== */}
+            {/* Base plate rail (Manfrotto style) */}
+            <mesh position={[0, -0.1, 0]} material={bodyMaterial}>
+              <boxGeometry args={[0.14, 0.03, 0.55]} />
             </mesh>
 
-            {/* Quick release lever */}
-            <mesh position={[0.22, -0.08, 0]} material={accentMaterial}>
-              <boxGeometry args={[0.04, 0.06, 0.08]} />
+            {/* Quick release plate (camera sits on this - can slide for balance) */}
+            <group position={[0, -0.13, -0.12]}>
+              {/* Main plate */}
+              <mesh material={bodyMaterial}>
+                <boxGeometry args={[0.5, 0.035, 0.42]} />
+              </mesh>
+
+              {/* Plate ridge front */}
+              <mesh position={[0, 0.025, 0.19]}>
+                <boxGeometry args={[0.48, 0.02, 0.04]} />
+                <meshStandardMaterial color="#2a2a2a" metalness={0.3} roughness={0.7} />
+              </mesh>
+
+              {/* Plate ridge back */}
+              <mesh position={[0, 0.025, -0.19]}>
+                <boxGeometry args={[0.48, 0.02, 0.04]} />
+                <meshStandardMaterial color="#2a2a2a" metalness={0.3} roughness={0.7} />
+              </mesh>
+
+              {/* Balance scale markings */}
+              {[-0.15, -0.075, 0, 0.075, 0.15].map((z, i) => (
+                <mesh key={i} position={[0.24, 0.02, z]}>
+                  <boxGeometry args={[0.02, 0.005, 0.01]} />
+                  <meshStandardMaterial color="#444444" />
+                </mesh>
+              ))}
+            </group>
+
+            {/* Quick release lever (red) */}
+            <mesh position={[0.28, -0.08, -0.12]} material={accentMaterial}>
+              <boxGeometry args={[0.05, 0.07, 0.1]} />
             </mesh>
 
-            {/* ========== CAMERA ========== */}
-            <group position={[0, -0.25, 0]}>
-              {/* Camera body */}
-              <RoundedBox args={[0.45, 0.28, 0.35]} radius={0.03} smoothness={4}>
+            {/* ========== CAMERA - BALANCED POSITION ========== */}
+            {/* Camera offset backward to balance lens weight (like real RS setup) */}
+            <group position={[0, -0.28, -0.18]}>
+              {/* Camera body - Sony A7 style */}
+              <RoundedBox args={[0.48, 0.32, 0.38]} radius={0.025} smoothness={4}>
                 <primitive object={cameraMaterial} attach="material" />
               </RoundedBox>
 
-              {/* Camera grip */}
-              <mesh position={[0.26, 0, 0.05]} material={cameraMaterial}>
-                <boxGeometry args={[0.08, 0.26, 0.25]} />
+              {/* Camera grip (right side, larger) */}
+              <mesh position={[0.28, -0.02, 0.04]} material={cameraMaterial}>
+                <boxGeometry args={[0.1, 0.34, 0.28]} />
               </mesh>
 
-              {/* Lens mount */}
+              {/* Grip texture */}
+              <mesh position={[0.331, -0.02, 0.04]}>
+                <boxGeometry args={[0.005, 0.3, 0.24]} />
+                <meshStandardMaterial color="#1a1a1a" roughness={1} />
+              </mesh>
+
+              {/* Mode dial top right */}
+              <mesh position={[0.15, 0.18, -0.05]} rotation={[0, 0, 0]}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 24]} />
+                <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.5} />
+              </mesh>
+
+              {/* Shutter button */}
+              <mesh position={[0.22, 0.17, 0.08]}>
+                <cylinderGeometry args={[0.02, 0.02, 0.015, 16]} />
+                <meshStandardMaterial color="#333333" metalness={0.6} roughness={0.4} />
+              </mesh>
+
+              {/* Hot shoe */}
+              <mesh position={[0, 0.175, -0.02]} material={cameraMaterial}>
+                <boxGeometry args={[0.12, 0.025, 0.1]} />
+              </mesh>
+
+              {/* EVF (electronic viewfinder) */}
+              <group position={[0, 0.12, -0.22]}>
+                <mesh material={cameraMaterial}>
+                  <boxGeometry args={[0.14, 0.12, 0.08]} />
+                </mesh>
+                {/* EVF eyepiece */}
+                <mesh position={[0, 0, -0.045]}>
+                  <boxGeometry args={[0.1, 0.08, 0.02]} />
+                  <meshStandardMaterial color="#0a0a0a" metalness={0.8} roughness={0.2} />
+                </mesh>
+              </group>
+
+              {/* Screen on back (tilted slightly) */}
+              <group position={[0, -0.02, -0.195]} rotation={[0.05, 0, 0]}>
+                <mesh>
+                  <boxGeometry args={[0.34, 0.22, 0.02]} />
+                  <meshStandardMaterial color="#0a0a0a" metalness={0.8} roughness={0.2} />
+                </mesh>
+                {/* Screen glass */}
+                <mesh position={[0, 0, -0.011]}>
+                  <planeGeometry args={[0.32, 0.2]} />
+                  <meshStandardMaterial
+                    color="#0a0a15"
+                    metalness={0.95}
+                    roughness={0.05}
+                    emissive="#0a1520"
+                    emissiveIntensity={0.15}
+                  />
+                </mesh>
+              </group>
+
+              {/* ========== LENS MOUNT ========== */}
               <mesh position={[0, 0, 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.1, 0.12, 0.08, 32]} />
-                <meshStandardMaterial color="#1a1a1a" metalness={0.6} roughness={0.3} />
+                <cylinderGeometry args={[0.11, 0.13, 0.06, 32]} />
+                <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.3} />
               </mesh>
 
-              {/* Lens body */}
-              <mesh position={[0, 0, 0.35]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.09, 0.09, 0.25, 32]} />
-                <meshStandardMaterial color="#0d0d0d" metalness={0.4} roughness={0.5} />
+              {/* Mount ring detail */}
+              <mesh position={[0, 0, 0.185]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.105, 0.008, 8, 32]} />
+                <meshStandardMaterial color="#cc3333" metalness={0.6} roughness={0.4} />
               </mesh>
 
-              {/* Lens front element */}
-              <mesh position={[0, 0, 0.48]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.07, 0.08, 0.02, 32]} />
-                <meshStandardMaterial color="#050510" metalness={0.9} roughness={0.1} />
+              {/* ========== LENS - 24-70mm f/2.8 style ========== */}
+              {/* Lens base (wider) */}
+              <mesh position={[0, 0, 0.28]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.1, 0.1, 0.12, 32]} />
+                <meshStandardMaterial color="#0f0f0f" metalness={0.3} roughness={0.6} />
               </mesh>
 
-              {/* Lens glass */}
-              <mesh position={[0, 0, 0.495]}>
-                <circleGeometry args={[0.065, 32]} />
-                <meshStandardMaterial
-                  color="#0a0a1a"
-                  metalness={1}
-                  roughness={0}
-                  envMapIntensity={2}
-                />
+              {/* Zoom ring */}
+              <mesh position={[0, 0, 0.38]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.095, 0.095, 0.12, 32]} />
+                <meshStandardMaterial color="#1a1a1a" metalness={0.2} roughness={0.85} />
+              </mesh>
+
+              {/* Zoom ring grip texture */}
+              <mesh position={[0, 0, 0.38]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.098, 0.008, 6, 48]} />
+                <meshStandardMaterial color="#252525" metalness={0.1} roughness={0.9} />
               </mesh>
 
               {/* Focus ring */}
-              <mesh position={[0, 0, 0.28]} rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[0.095, 0.015, 8, 32]} />
-                <meshStandardMaterial color="#252525" metalness={0.2} roughness={0.8} />
+              <mesh position={[0, 0, 0.48]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.088, 0.09, 0.08, 32]} />
+                <meshStandardMaterial color="#151515" metalness={0.2} roughness={0.8} />
               </mesh>
 
-              {/* Camera top (hot shoe, etc) */}
-              <mesh position={[0, 0.16, -0.05]} material={cameraMaterial}>
-                <boxGeometry args={[0.35, 0.04, 0.2]} />
+              {/* Lens hood thread */}
+              <mesh position={[0, 0, 0.54]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.082, 0.085, 0.04, 32]} />
+                <meshStandardMaterial color="#0d0d0d" metalness={0.4} roughness={0.6} />
               </mesh>
 
-              {/* EVF bump */}
-              <mesh position={[0, 0.1, -0.2]} material={cameraMaterial}>
-                <boxGeometry args={[0.12, 0.1, 0.06]} />
+              {/* Front element housing */}
+              <mesh position={[0, 0, 0.58]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.075, 0.08, 0.04, 32]} />
+                <meshStandardMaterial color="#050505" metalness={0.5} roughness={0.4} />
               </mesh>
 
-              {/* Recording indicator */}
-              <mesh position={[0.18, 0.12, 0.175]}>
-                <sphereGeometry args={[0.015, 16, 16]} />
+              {/* Lens glass (front element) */}
+              <mesh position={[0, 0, 0.605]}>
+                <circleGeometry args={[0.068, 32]} />
+                <meshStandardMaterial
+                  color="#050515"
+                  metalness={1}
+                  roughness={0}
+                  envMapIntensity={3}
+                />
+              </mesh>
+
+              {/* Lens markings - white ring */}
+              <mesh position={[0, 0, 0.32]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.101, 0.003, 8, 32]} />
+                <meshStandardMaterial color="#ffffff" metalness={0.1} roughness={0.9} />
+              </mesh>
+
+              {/* Recording indicator LED */}
+              <mesh position={[0.2, 0.14, 0.15]}>
+                <sphereGeometry args={[0.012, 16, 16]} />
                 <meshStandardMaterial
                   color="#ff0000"
                   emissive="#ff0000"
@@ -295,18 +400,19 @@ function GimbalModel() {
                 />
               </mesh>
 
-              {/* Screen on back */}
-              <mesh position={[0, -0.02, -0.176]}>
-                <planeGeometry args={[0.28, 0.18]} />
-                <meshStandardMaterial
-                  color="#111122"
-                  metalness={0.9}
-                  roughness={0.1}
-                  emissive="#1a2a3a"
-                  emissiveIntensity={0.2}
-                />
+              {/* Front IR sensor / AF illuminator */}
+              <mesh position={[-0.15, 0.08, 0.19]}>
+                <boxGeometry args={[0.04, 0.025, 0.01]} />
+                <meshStandardMaterial color="#1a0505" metalness={0.8} roughness={0.2} />
               </mesh>
             </group>
+
+            {/* ========== BALANCE INDICATOR ========== */}
+            {/* Visual center of gravity marker (shows camera is balanced) */}
+            <mesh position={[0, -0.06, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.02, 0.025, 16]} />
+              <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.5} />
+            </mesh>
           </group>
         </group>
       </group>
