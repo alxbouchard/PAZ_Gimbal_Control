@@ -24,7 +24,7 @@ Professional web-based control interface for DJI Ronin RS gimbals with ZAP Track
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/PAZ_Gimbal_Control.git
+git clone https://github.com/alxbouchard/PAZ_Gimbal_Control.git
 cd PAZ_Gimbal_Control
 
 # Run the setup script
