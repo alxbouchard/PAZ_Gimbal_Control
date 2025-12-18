@@ -224,8 +224,8 @@ function GimbalModel() {
               <boxGeometry args={[0.14, 0.03, 0.55]} />
             </mesh>
 
-            {/* Quick release plate (camera sits on this - can slide for balance) */}
-            <group position={[0, -0.13, -0.12]}>
+            {/* Quick release plate (camera sits on this - centered) */}
+            <group position={[0, -0.13, 0]}>
               {/* Main plate */}
               <mesh material={bodyMaterial}>
                 <boxGeometry args={[0.5, 0.035, 0.42]} />
@@ -253,13 +253,13 @@ function GimbalModel() {
             </group>
 
             {/* Quick release lever (red) */}
-            <mesh position={[0.28, -0.08, -0.12]} material={accentMaterial}>
+            <mesh position={[0.28, -0.08, 0]} material={accentMaterial}>
               <boxGeometry args={[0.05, 0.07, 0.1]} />
             </mesh>
 
-            {/* ========== CAMERA - BALANCED POSITION ========== */}
-            {/* Camera offset backward to balance lens weight (like real RS setup) */}
-            <group position={[0, -0.28, -0.18]}>
+            {/* ========== CAMERA - CENTERED ON ROLL AXIS ========== */}
+            {/* Camera centered on roll axis for proper balance */}
+            <group position={[0, -0.28, 0]}>
               {/* Camera body - Sony A7 style */}
               <RoundedBox args={[0.48, 0.32, 0.38]} radius={0.025} smoothness={4}>
                 <primitive object={cameraMaterial} attach="material" />
