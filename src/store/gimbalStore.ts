@@ -10,8 +10,8 @@ const defaultControlMapping: ControlMapping = {
     x: 'roll',
     y: 'focus',
   },
-  invertPitch: false,
-  invertYaw: false,
+  invertPitch: true,
+  invertYaw: true,
   invertRoll: false,
 };
 

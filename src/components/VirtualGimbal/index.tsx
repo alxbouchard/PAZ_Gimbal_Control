@@ -43,7 +43,7 @@ function GimbalModel() {
   }), []);
 
   const darkGrayMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#252525',
+    color: '#2a2a2a',
     metalness: 0.2,
     roughness: 0.8,
   }), []);
@@ -69,7 +69,7 @@ function GimbalModel() {
   }), []);
 
   const lensMaterial = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#0a0a0a',
+    color: '#1a1a1a',
     metalness: 0.6,
     roughness: 0.4,
   }), []);
@@ -77,315 +77,301 @@ function GimbalModel() {
   return (
     <group>
       {/* ==================== MINI TRIPOD BASE ==================== */}
-      <group position={[0, -1.65, 0]}>
-        {/* Tripod center */}
+      <group position={[0, -1.75, 0]}>
         <mesh material={blackMaterial}>
-          <cylinderGeometry args={[0.08, 0.1, 0.08, 24]} />
+          <cylinderGeometry args={[0.05, 0.07, 0.05, 24]} />
         </mesh>
-        {/* Tripod legs */}
         {[0, 120, 240].map((angle, i) => (
           <group key={i} rotation={[0, THREE.MathUtils.degToRad(angle), 0]}>
-            <mesh position={[0.15, -0.02, 0]} rotation={[0, 0, -0.3]} material={blackMaterial}>
-              <boxGeometry args={[0.18, 0.025, 0.04]} />
+            <mesh position={[0.1, -0.015, 0]} rotation={[0, 0, -0.2]} material={blackMaterial}>
+              <boxGeometry args={[0.12, 0.018, 0.025]} />
             </mesh>
-            {/* Leg foot */}
-            <mesh position={[0.26, -0.04, 0]} material={darkGrayMaterial}>
-              <sphereGeometry args={[0.025, 16, 16]} />
+            <mesh position={[0.17, -0.035, 0]} material={darkGrayMaterial}>
+              <sphereGeometry args={[0.015, 12, 12]} />
             </mesh>
           </group>
         ))}
       </group>
 
       {/* ==================== HANDLE / GRIP ==================== */}
-      <group position={[0, -1.1, 0]}>
-        {/* Main grip body */}
-        <RoundedBox args={[0.28, 0.9, 0.26]} radius={0.04} smoothness={4}>
+      <group position={[0, -1.25, 0]}>
+        <RoundedBox args={[0.2, 0.85, 0.2]} radius={0.03} smoothness={4}>
           <primitive object={blackMaterial} attach="material" />
         </RoundedBox>
 
-        {/* Grip rubberized texture (front) */}
-        <mesh position={[0, -0.1, 0.131]}>
-          <boxGeometry args={[0.24, 0.5, 0.01]} />
+        {/* Grip texture */}
+        <mesh position={[0, -0.1, 0.101]}>
+          <boxGeometry args={[0.16, 0.4, 0.006]} />
           <meshStandardMaterial color="#1f1f1f" roughness={0.95} />
         </mesh>
 
         {/* OLED Screen */}
-        <mesh position={[0, 0.28, 0.131]}>
-          <planeGeometry args={[0.18, 0.1]} />
+        <mesh position={[0, 0.28, 0.101]}>
+          <planeGeometry args={[0.12, 0.07]} />
           <primitive object={screenMaterial} attach="material" />
         </mesh>
 
-        {/* Focus/Zoom wheel (front) */}
-        <mesh position={[0, 0.05, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 0.025, 32]} />
+        {/* Focus wheel */}
+        <mesh position={[0, 0.08, 0.11]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.018, 32]} />
           <meshStandardMaterial color="#2a2a2a" metalness={0.3} roughness={0.7} />
-        </mesh>
-        {/* Wheel grip lines */}
-        <mesh position={[0, 0.05, 0.155]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.045, 0.004, 8, 24]} />
-          <meshStandardMaterial color="#1a1a1a" />
         </mesh>
 
         {/* Joystick */}
-        <mesh position={[0, 0.18, 0.13]}>
-          <sphereGeometry args={[0.025, 16, 16]} />
+        <mesh position={[0, 0.18, 0.1]}>
+          <sphereGeometry args={[0.018, 16, 16]} />
           <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.5} />
         </mesh>
 
-        {/* Mode button (M) */}
-        <mesh position={[-0.06, 0.35, 0.13]}>
-          <cylinderGeometry args={[0.015, 0.015, 0.01, 16]} />
+        {/* Buttons */}
+        <mesh position={[0.04, 0.35, 0.1]}>
+          <cylinderGeometry args={[0.01, 0.01, 0.006, 16]} />
+          <primitive object={redAccent} attach="material" />
+        </mesh>
+        <mesh position={[-0.04, 0.35, 0.1]}>
+          <cylinderGeometry args={[0.01, 0.01, 0.006, 16]} />
           <meshStandardMaterial color="#333333" />
         </mesh>
 
-        {/* Record button (red) */}
-        <mesh position={[0.06, 0.35, 0.13]}>
-          <cylinderGeometry args={[0.015, 0.015, 0.01, 16]} />
-          <primitive object={redAccent} attach="material" />
-        </mesh>
-
-        {/* Trigger (back) */}
-        <mesh position={[0, 0.15, -0.1]} rotation={[0.2, 0, 0]}>
-          <boxGeometry args={[0.08, 0.12, 0.03]} />
+        {/* Trigger */}
+        <mesh position={[0, 0.15, -0.07]} rotation={[0.12, 0, 0]}>
+          <boxGeometry args={[0.05, 0.08, 0.02]} />
           <primitive object={darkGrayMaterial} attach="material" />
         </mesh>
 
-        {/* DJI Logo area */}
-        <mesh position={[0.1, 0.32, 0.08]}>
-          <boxGeometry args={[0.04, 0.025, 0.02]} />
-          <meshStandardMaterial color="#cccccc" />
-        </mesh>
-
-        {/* Side buttons (left) */}
-        <mesh position={[-0.141, 0.2, 0]}>
-          <boxGeometry args={[0.015, 0.06, 0.04]} />
-          <primitive object={darkGrayMaterial} attach="material" />
-        </mesh>
-        <mesh position={[-0.141, 0.1, 0]}>
-          <boxGeometry args={[0.015, 0.06, 0.04]} />
-          <primitive object={darkGrayMaterial} attach="material" />
+        {/* RONIN-S2 label area */}
+        <mesh position={[0, 0.38, 0.05]}>
+          <boxGeometry args={[0.12, 0.03, 0.1]} />
+          <meshStandardMaterial color="#1a1a1a" />
         </mesh>
       </group>
 
-      {/* ==================== YAW MOTOR (base of arm) ==================== */}
+      {/* ==================== YAW AXIS ==================== */}
       <group ref={yawRef}>
-        <group position={[0, -0.55, 0]}>
-          {/* Yaw motor housing */}
+        {/* YAW MOTOR - large cylinder above handle */}
+        <group position={[0, -0.72, 0]}>
           <mesh material={motorMaterial}>
-            <cylinderGeometry args={[0.12, 0.14, 0.1, 32]} />
+            <cylinderGeometry args={[0.11, 0.12, 0.1, 32]} />
           </mesh>
-          {/* Motor ring detail */}
-          <mesh position={[0, 0.04, 0]}>
-            <torusGeometry args={[0.11, 0.015, 8, 32]} />
+          {/* Motor top ring */}
+          <mesh position={[0, 0.045, 0]}>
+            <torusGeometry args={[0.1, 0.012, 8, 32]} />
             <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.5} />
           </mesh>
-        </group>
-
-        {/* ==================== MAIN ARM (L-shaped, angled) ==================== */}
-        {/* Vertical section of arm */}
-        <group position={[0, -0.25, 0]}>
-          <RoundedBox args={[0.12, 0.5, 0.1]} radius={0.02} smoothness={4}>
-            <primitive object={blackMaterial} attach="material" />
-          </RoundedBox>
-        </group>
-
-        {/* Angled/curved section going to pitch motor */}
-        <group position={[0.15, 0.15, 0]} rotation={[0, 0, -0.4]}>
-          <RoundedBox args={[0.4, 0.1, 0.09]} radius={0.02} smoothness={4}>
-            <primitive object={blackMaterial} attach="material" />
-          </RoundedBox>
-
-          {/* RONIN text (red) on arm */}
-          <mesh position={[0, 0.051, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[0.3, 0.06]} />
-            <primitive object={redAccent} attach="material" />
+          {/* Motor bottom ring */}
+          <mesh position={[0, -0.045, 0]}>
+            <torusGeometry args={[0.11, 0.01, 8, 32]} />
+            <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
           </mesh>
         </group>
 
-        {/* ==================== PITCH MOTOR ==================== */}
-        <group ref={pitchRef} position={[0.38, 0.28, 0]}>
-          {/* Pitch motor housing */}
+        {/* ==================== VERTICAL POST (short section above yaw motor) ==================== */}
+        <group position={[0, -0.55, 0]}>
+          <mesh material={blackMaterial}>
+            <cylinderGeometry args={[0.045, 0.05, 0.22, 24]} />
+          </mesh>
+        </group>
+
+        {/* ==================== PITCH MOTOR (on the LEFT side, horizontal axis) ==================== */}
+        {/* Offset so that roll motor (and camera) ends up centered at X=0 */}
+        <group ref={pitchRef} position={[-0.42, 0.1, 0]}>
+          {/* Pitch motor housing - horizontal cylinder */}
           <mesh rotation={[0, 0, Math.PI / 2]} material={motorMaterial}>
-            <cylinderGeometry args={[0.1, 0.1, 0.12, 32]} />
+            <cylinderGeometry args={[0.08, 0.08, 0.12, 32]} />
+          </mesh>
+          {/* Motor rings */}
+          <mesh position={[-0.055, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <torusGeometry args={[0.07, 0.008, 8, 32]} />
+            <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
+          </mesh>
+          <mesh position={[0.055, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <torusGeometry args={[0.07, 0.008, 8, 32]} />
+            <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
           </mesh>
 
-          {/* Pitch arm going forward to roll */}
-          <group position={[0, 0, 0.25]} rotation={[0, 0, 0]}>
-            <RoundedBox args={[0.08, 0.08, 0.4]} radius={0.015} smoothness={4}>
+          {/* ==================== VERTICAL ARM with RONIN text (going DOWN from pitch motor to horizontal arm) ==================== */}
+          <group position={[0, -0.15, 0]}>
+            <RoundedBox args={[0.07, 0.22, 0.065]} radius={0.012} smoothness={4}>
               <primitive object={blackMaterial} attach="material" />
             </RoundedBox>
+            {/* Red accent line */}
+            <mesh position={[0.036, 0, 0]}>
+              <boxGeometry args={[0.003, 0.18, 0.05]} />
+              <primitive object={redAccent} attach="material" />
+            </mesh>
+            {/* Scale markings */}
+            {[-0.06, -0.02, 0.02, 0.06].map((y, i) => (
+              <mesh key={i} position={[-0.036, y, 0]}>
+                <boxGeometry args={[0.003, 0.006, 0.04]} />
+                <meshStandardMaterial color="#444444" />
+              </mesh>
+            ))}
           </group>
 
-          {/* ==================== ROLL MOTOR & CAMERA PLATE ==================== */}
-          <group ref={rollRef} position={[0, 0, 0.5]}>
-            {/* Roll motor (horizontal orientation like in image) */}
+          {/* ==================== HORIZONTAL ARM (going RIGHT from vertical arm to roll motor at X=0) ==================== */}
+          <group position={[0.21, -0.26, 0]}>
+            <RoundedBox args={[0.48, 0.055, 0.08]} radius={0.01} smoothness={4}>
+              <primitive object={blackMaterial} attach="material" />
+            </RoundedBox>
+            {/* Rail groove on top */}
+            <mesh position={[0, 0.028, 0]}>
+              <boxGeometry args={[0.44, 0.005, 0.06]} />
+              <meshStandardMaterial color="#0a0a0a" />
+            </mesh>
+            {/* Scale markings */}
+            {[-0.18, -0.09, 0, 0.09, 0.18].map((x, i) => (
+              <mesh key={i} position={[x, 0.03, 0.03]}>
+                <boxGeometry args={[0.006, 0.003, 0.012]} />
+                <meshStandardMaterial color="#555555" />
+              </mesh>
+            ))}
+          </group>
+
+          {/* ==================== ROLL MOTOR (positioned so camera is centered on pitch axis Y=0) ==================== */}
+          <group position={[0.42, -0.26, 0]}>
+            {/* Roll motor - cylinder facing forward (Z axis) */}
             <mesh rotation={[Math.PI / 2, 0, 0]} material={motorMaterial}>
-              <cylinderGeometry args={[0.09, 0.09, 0.1, 32]} />
+              <cylinderGeometry args={[0.065, 0.065, 0.09, 32]} />
+            </mesh>
+            {/* Motor ring front */}
+            <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.055, 0.005, 8, 32]} />
+              <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
             </mesh>
 
-            {/* Camera mounting plate system */}
-            <group position={[0, -0.12, 0]}>
-              {/* Upper plate rail */}
-              <mesh material={blackMaterial}>
-                <boxGeometry args={[0.45, 0.03, 0.12]} />
+            {/* ==================== ROLL GROUP (camera rotates around Z axis from here) ==================== */}
+            <group ref={rollRef}>
+              {/* ==================== QUICK RELEASE PLATE (CENTERED under roll motor) ==================== */}
+              <group position={[0, -0.08, 0]}>
+                {/* Main plate */}
+                <mesh material={darkGrayMaterial}>
+                  <boxGeometry args={[0.35, 0.025, 0.09]} />
+                </mesh>
+                {/* Side rails */}
+                <mesh position={[0, 0, 0.04]}>
+                  <boxGeometry args={[0.32, 0.03, 0.01]} />
+                  <meshStandardMaterial color="#1a1a1a" />
+                </mesh>
+                <mesh position={[0, 0, -0.04]}>
+                  <boxGeometry args={[0.32, 0.03, 0.01]} />
+                  <meshStandardMaterial color="#1a1a1a" />
+                </mesh>
+                {/* Adjustment knobs */}
+                <mesh position={[0.14, 0.02, 0]}>
+                  <cylinderGeometry args={[0.012, 0.012, 0.015, 16]} />
+                  <meshStandardMaterial color="#333333" />
+                </mesh>
+                <mesh position={[-0.14, 0.02, 0]}>
+                  <cylinderGeometry args={[0.01, 0.01, 0.012, 16]} />
+                  <meshStandardMaterial color="#cc0000" />
+                </mesh>
+              </group>
+
+              {/* ==================== CAMERA (CENTERED on roll axis, facing FORWARD / +Z) ==================== */}
+              {/* Adjust Y so camera center aligns with pitch motor axis (Y=0 relative to pitch) */}
+              <group position={[0, 0.26, 0]}>
+              {/* Camera body - DSLR style */}
+              <RoundedBox args={[0.38, 0.28, 0.22]} radius={0.015} smoothness={4}>
+                <meshStandardMaterial color="#3a3a3a" metalness={0.2} roughness={0.8} transparent opacity={0.85} />
+              </RoundedBox>
+
+              {/* Camera grip (right side) */}
+              <mesh position={[0.16, -0.02, 0.06]}>
+                <boxGeometry args={[0.06, 0.26, 0.1]} />
+                <meshStandardMaterial color="#3a3a3a" metalness={0.2} roughness={0.8} transparent opacity={0.85} />
               </mesh>
 
-              {/* Balance adjustment knobs */}
-              <mesh position={[0.2, 0.02, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.025, 0.025, 0.03, 16]} />
-                <meshStandardMaterial color="#333333" metalness={0.4} roughness={0.6} />
-              </mesh>
-              <mesh position={[-0.2, 0.02, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.025, 0.025, 0.03, 16]} />
-                <meshStandardMaterial color="#333333" metalness={0.4} roughness={0.6} />
+              {/* Top prism/pentaprism housing */}
+              <mesh position={[0, 0.18, -0.02]}>
+                <boxGeometry args={[0.14, 0.08, 0.12]} />
+                <meshStandardMaterial color="#3a3a3a" metalness={0.2} roughness={0.8} transparent opacity={0.85} />
               </mesh>
 
-              {/* Lower plate / quick release */}
-              <mesh position={[0, -0.04, 0]} material={darkGrayMaterial}>
-                <boxGeometry args={[0.5, 0.025, 0.35]} />
+              {/* Hot shoe */}
+              <mesh position={[0, 0.23, -0.02]}>
+                <boxGeometry args={[0.06, 0.012, 0.04]} />
+                <meshStandardMaterial color="#2a2a2a" metalness={0.6} roughness={0.4} />
               </mesh>
 
-              {/* Balance scale markings */}
-              {[-0.18, -0.09, 0, 0.09, 0.18].map((x, i) => (
-                <mesh key={i} position={[x, -0.02, 0.13]}>
-                  <boxGeometry args={[0.008, 0.01, 0.02]} />
-                  <meshStandardMaterial color="#444444" />
+              {/* Mode dial */}
+              <mesh position={[0.1, 0.16, 0.04]}>
+                <cylinderGeometry args={[0.025, 0.025, 0.018, 24]} />
+                <meshStandardMaterial color="#2a2a2a" metalness={0.5} roughness={0.5} />
+              </mesh>
+
+              {/* ==================== LENS (pointing FORWARD / +Z) ==================== */}
+              {/* Lens mount */}
+              <mesh position={[0, 0, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.08, 0.085, 0.025, 32]} />
+                <meshStandardMaterial color="#2a2a2a" metalness={0.6} roughness={0.4} />
+              </mesh>
+
+              {/* Lens barrel */}
+              <mesh position={[0, 0, 0.2]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.075, 0.08, 0.12, 32]} />
+                <primitive object={lensMaterial} attach="material" />
+              </mesh>
+
+              {/* Zoom ring */}
+              <mesh position={[0, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.082, 0.082, 0.1, 32]} />
+                <meshStandardMaterial color="#1a1a1a" metalness={0.15} roughness={0.9} />
+              </mesh>
+
+              {/* Zoom ring texture */}
+              {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle, i) => (
+                <mesh key={i} position={[
+                  Math.cos(THREE.MathUtils.degToRad(angle)) * 0.084,
+                  Math.sin(THREE.MathUtils.degToRad(angle)) * 0.084,
+                  0.3
+                ]} rotation={[0, 0, THREE.MathUtils.degToRad(angle)]}>
+                  <boxGeometry args={[0.008, 0.004, 0.08]} />
+                  <meshStandardMaterial color="#0f0f0f" />
                 </mesh>
               ))}
 
-              {/* ==================== CAMERA ==================== */}
-              <group position={[0, -0.2, 0]}>
-                {/* Camera body */}
-                <RoundedBox args={[0.44, 0.28, 0.34]} radius={0.02} smoothness={4}>
-                  <primitive object={blackMaterial} attach="material" />
-                </RoundedBox>
+              {/* Focus ring */}
+              <mesh position={[0, 0, 0.4]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.072, 0.078, 0.08, 32]} />
+                <meshStandardMaterial color="#1f1f1f" metalness={0.2} roughness={0.85} />
+              </mesh>
 
-                {/* Camera grip (right side) */}
-                <mesh position={[0.26, 0, 0.02]} material={blackMaterial}>
-                  <boxGeometry args={[0.08, 0.3, 0.26]} />
-                </mesh>
+              {/* Lens front */}
+              <mesh position={[0, 0, 0.48]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.065, 0.07, 0.08, 32]} />
+                <meshStandardMaterial color="#151515" metalness={0.3} roughness={0.7} />
+              </mesh>
 
-                {/* Top plate with controls */}
-                <mesh position={[0, 0.15, -0.02]} material={blackMaterial}>
-                  <boxGeometry args={[0.38, 0.02, 0.28]} />
-                </mesh>
+              {/* Front element (glass) */}
+              <mesh position={[0, 0, 0.525]}>
+                <circleGeometry args={[0.055, 32]} />
+                <meshStandardMaterial
+                  color="#0a1520"
+                  metalness={1}
+                  roughness={0}
+                  envMapIntensity={2}
+                />
+              </mesh>
 
-                {/* Mode dial */}
-                <mesh position={[0.12, 0.17, -0.06]} rotation={[0, 0, 0]}>
-                  <cylinderGeometry args={[0.035, 0.035, 0.025, 24]} />
-                  <meshStandardMaterial color="#1a1a1a" metalness={0.6} roughness={0.4} />
-                </mesh>
-
-                {/* Hot shoe */}
-                <mesh position={[0, 0.165, -0.02]}>
-                  <boxGeometry args={[0.08, 0.015, 0.06]} />
-                  <meshStandardMaterial color="#1f1f1f" metalness={0.7} roughness={0.3} />
-                </mesh>
-
-                {/* EVF hump */}
-                <group position={[0, 0.08, -0.2]}>
-                  <mesh material={blackMaterial}>
-                    <boxGeometry args={[0.12, 0.1, 0.06]} />
-                  </mesh>
-                  {/* EVF eyepiece */}
-                  <mesh position={[0, 0, -0.035]} rotation={[Math.PI / 2, 0, 0]}>
-                    <cylinderGeometry args={[0.035, 0.04, 0.02, 24]} />
-                    <meshStandardMaterial color="#0a0a0a" metalness={0.8} roughness={0.2} />
-                  </mesh>
-                </group>
-
-                {/* Rear LCD screen */}
-                <group position={[0, -0.02, -0.175]}>
-                  <mesh>
-                    <boxGeometry args={[0.32, 0.2, 0.015]} />
-                    <meshStandardMaterial color="#0a0a0a" metalness={0.8} roughness={0.2} />
-                  </mesh>
-                  <mesh position={[0, 0, -0.008]}>
-                    <planeGeometry args={[0.3, 0.18]} />
-                    <meshStandardMaterial
-                      color="#050510"
-                      metalness={0.95}
-                      roughness={0.05}
-                      emissive="#0a1520"
-                      emissiveIntensity={0.1}
-                    />
-                  </mesh>
-                </group>
-
-                {/* ==================== LENS ==================== */}
-                {/* Lens mount */}
-                <mesh position={[0, 0, 0.18]} rotation={[Math.PI / 2, 0, 0]}>
-                  <cylinderGeometry args={[0.1, 0.11, 0.04, 32]} />
-                  <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.3} />
-                </mesh>
-
-                {/* Lens body - wide zoom lens */}
-                <mesh position={[0, 0, 0.28]} rotation={[Math.PI / 2, 0, 0]}>
-                  <cylinderGeometry args={[0.095, 0.1, 0.16, 32]} />
-                  <primitive object={lensMaterial} attach="material" />
-                </mesh>
-
-                {/* Zoom ring */}
-                <mesh position={[0, 0, 0.4]} rotation={[Math.PI / 2, 0, 0]}>
-                  <cylinderGeometry args={[0.1, 0.1, 0.12, 32]} />
-                  <meshStandardMaterial color="#151515" metalness={0.2} roughness={0.85} />
-                </mesh>
-
-                {/* Zoom ring texture */}
-                {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-                  <mesh key={i} position={[
-                    Math.cos(THREE.MathUtils.degToRad(angle)) * 0.102,
-                    Math.sin(THREE.MathUtils.degToRad(angle)) * 0.102,
-                    0.4
-                  ]} rotation={[0, 0, THREE.MathUtils.degToRad(angle)]}>
-                    <boxGeometry args={[0.008, 0.015, 0.1]} />
-                    <meshStandardMaterial color="#1a1a1a" />
-                  </mesh>
-                ))}
-
-                {/* Focus ring */}
-                <mesh position={[0, 0, 0.52]} rotation={[Math.PI / 2, 0, 0]}>
-                  <cylinderGeometry args={[0.088, 0.095, 0.08, 32]} />
-                  <meshStandardMaterial color="#1a1a1a" metalness={0.15} roughness={0.9} />
-                </mesh>
-
-                {/* Lens front section */}
-                <mesh position={[0, 0, 0.6]} rotation={[Math.PI / 2, 0, 0]}>
-                  <cylinderGeometry args={[0.08, 0.085, 0.08, 32]} />
-                  <meshStandardMaterial color="#0d0d0d" metalness={0.4} roughness={0.6} />
-                </mesh>
-
-                {/* Front element / glass */}
-                <mesh position={[0, 0, 0.65]}>
-                  <circleGeometry args={[0.07, 32]} />
-                  <meshStandardMaterial
-                    color="#020210"
-                    metalness={1}
-                    roughness={0}
-                    envMapIntensity={2}
-                  />
-                </mesh>
-
-                {/* Lens hood mount ring */}
-                <mesh position={[0, 0, 0.58]} rotation={[Math.PI / 2, 0, 0]}>
-                  <torusGeometry args={[0.082, 0.005, 8, 32]} />
-                  <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.7} />
-                </mesh>
-              </group>
+              {/* Inner lens reflection ring */}
+              <mesh position={[0, 0, 0.52]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.045, 0.008, 8, 32]} />
+                <meshStandardMaterial color="#0a0a0a" metalness={0.8} roughness={0.2} />
+              </mesh>
+            </group>
             </group>
           </group>
         </group>
       </group>
 
       {/* Ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.72, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.82, 0]} receiveShadow>
         <circleGeometry args={[3, 64]} />
         <meshStandardMaterial color="#0a0a0a" metalness={0.1} roughness={0.9} />
       </mesh>
 
-      {/* Subtle ground shadow */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.71, 0]}>
-        <circleGeometry args={[0.8, 32]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.81, 0]}>
+        <circleGeometry args={[0.5, 32]} />
         <meshBasicMaterial color="#000000" opacity={0.3} transparent />
       </mesh>
     </group>
@@ -433,7 +419,7 @@ export function VirtualGimbal() {
   return (
     <div className="h-full min-h-[400px] bg-gradient-to-b from-[#0a0a0f] to-[#12121a] rounded-xl border border-gray-800 overflow-hidden">
       <Canvas shadows>
-        <PerspectiveCamera makeDefault position={[2.5, 1.5, 2.5]} fov={45} />
+        <PerspectiveCamera makeDefault position={[2, 1, 2.5]} fov={45} />
         <OrbitControls
           enablePan={false}
           minDistance={2}
