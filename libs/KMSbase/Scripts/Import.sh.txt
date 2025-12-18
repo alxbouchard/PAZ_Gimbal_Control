@@ -1,0 +1,16 @@
+
+# Author   KMS - Martin Dubois, ing.
+# Product  KmsBase
+# File     Scripts/Import.sh.txt
+
+# CODE REVIEW  2019-07-26  KMS - Martin Dubois, ing.
+
+Binaries
+    KmsCopy
+    KmsVersion
+
+Libraries
+    KmsLib.a
+
+Tests
+    KmsLib_Test

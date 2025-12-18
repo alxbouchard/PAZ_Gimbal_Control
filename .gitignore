@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Native binaries (built locally - KMSbase only)
+libs/KMSbase/Binaries/
+*.o
+*.a
+
+# Keep ZAP_Tracking pre-compiled binaries (required for hardware mode)
+# libs/ZAP_Tracking/Binaries/ - INCLUDED in repo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+ENV/
+.eggs/
+*.egg-info/
+.pytest_cache/
+
+# Cache
+.cache/
+.parcel-cache/
+.vite/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.vitest/
+
+# Misc
+*.pem
+tmp/
+temp/
+*.tmp

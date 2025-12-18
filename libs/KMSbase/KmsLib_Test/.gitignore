@@ -1,0 +1,15 @@
+
+# Auteur	KMS -	Martin Dubois, ing.
+# Produit	KmsBase
+# Fichier	KmsLib_Test/.gitignore
+
+# Les 3 lignes qui suivent servent a tester la classe IgnoreList.
+Test0?/
+/Test1/Toto
+Test2/Toto*/
+
+*.bin
+
+Messages.h
+Messages.rc
+pid_*_log_Test_*.txt

@@ -1,0 +1,22 @@
+
+Author / Auteur		:	KMS -	Martin Dubois, ing.
+Project / Projet	:	KmsBase
+File / Fichier		:	Templates/Services/_DocUser/Use.txt
+
+[ ]	Create an empty project of type "Win32 Project" using the
+	"Windows Application" sub type / Creer un projet vide de type
+	"Win32 Project" en utilisant le sous type "Windows Application";
+[ ]	Copy the template files into the new project folder / Copier les fichiers
+	du modele dans le repertoire du nouveau projet;
+[ ] Modify the project configuration in order to use KmsLib / Modifier la
+	configuration du projet pour utiliser KmsLib
+[ ] Modify the project configuration / Modifier la configuration du projet
+	- General :	"Character Set" = "Not Set".
+	- Build Events\Pre-Build Events	: "Command Line" = "mc.exe Messages.mc"
+	- C/C++\Code Generation : "Runtime Library" = "Multi-threaded (/MT)"
+[ ] Compile the project / Compiler le projet;
+[ ] Add a file to the "Resource Files" filter / Ajouter un fichier au filtre
+	"Resource Files"
+	- Messages.rc
+[ ] Search for TODO and handle them one by one / Rechercher les TODO et les
+	traiter un par un.

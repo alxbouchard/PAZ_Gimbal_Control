@@ -1,0 +1,44 @@
+
+# Author  KMS - Martin Dubois, P.Eng.
+# Client  ZAP
+# Product Tracking
+# File    Scripts/ConfigEthCAN.sh.txt
+
+Echo 1. Detecting...
+
+Detect
+Error Exit
+
+List
+Error Exit
+
+Select Index 0
+Error Exit
+
+Echo 2. Configuring...
+
+Device Config Get
+Error Exit
+
+Config CAN Flags 2
+Error Exit
+
+Config CAN Filters 222 0 0 0 0 0
+Error Exit
+
+Config CAN Masks 7ff 7ff
+Error Exit
+
+Config CAN Rate 1000
+Error Exit
+
+Device Config Set
+Error Exit
+
+Echo 3. Storing configuration...
+
+Device Config Store 1
+Error Exit
+
+Echo OK
+Exit 0

@@ -1,0 +1,79 @@
+
+Author    KMS - Martin Dubois, P.Eng.
+Copyright (C) 2020-2021 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KmsBase
+File      _DocUser/KmsBase.ReadMe.txt
+
+3.0.35 Darwin arm64 2022-06-10
+
+3.0.33 Darwin
+- Darwin package
+
+3.0.31 Jetson
+
+3.0.30 Windows
+- VisualStudio 2019 (v142)
+- InnoSetup 6.1.2
+
+3.0.29 Windows
+- Script/KmsBase_CreateCab.cmd
+- Script/KmsBase_Export_Signed.cmd
+- Use SDK 10.0.17763.0
+
+3.0.28 Linux
+
+3.0.27 Linux
+
+3.0.26 Windows
+- Signed installer
+
+3.0.25 Linux
+- KmsVersion on Linux
+
+3.0.24 Windows
+
+3.0.23 Windows
+- Scripts/KmsBase_Build_Installer.cmd
+
+3.0.22 Linux
+- Debian package
+
+3.0.21 Windows
+- KMS_TOOL_BANNER includes KMS web site URL
+
+3.0.20 Windows
+
+3.0.19 Windows
+- KmsVersion (Moved from KmsTools product)
+
+3.0.18 Windows
+- Remove templates DepCheck and DepCheck_Net
+
+3.0.17 Windows
+
+3.0.16
+
+3.0.15
+
+3.0.14
+- KmsCopy for Linux
+- KMS_TOOL_BANNER fixed for Linux
+
+3.0.13
+- Compile on Ubuntu 18.04.1
+- Compile with Visual Studio 2017 (15.8.3)
+- KmsTest.h don't double evaluate functions
+
+2.5.4
+- Compile with Visual Studio 2017
+
+2.5.3
+- KmsTest.h has COMPARE macros
+
+2.4.19
+- KmsTool.h
+
+2.4.17
+- KmsTest.h has a colored ouptut
+- Compile with Visual Studio 2015

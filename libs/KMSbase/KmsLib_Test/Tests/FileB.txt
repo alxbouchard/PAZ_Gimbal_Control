@@ -1,0 +1,4 @@
+
+Auteur   KMS - Martin Dubois, ing.
+Produit  KmsBase
+Fichier  KmsLib_Test/Tests/FileB.txt

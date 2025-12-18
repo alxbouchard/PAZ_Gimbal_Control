@@ -1,0 +1,89 @@
+
+Author  KMS - Martin Dubois, P. Eng
+Client  ZAP
+Product Tracking
+File    ZT_Lib/_DocUser/Tracking.ZT_Lib.ReadMe.txt
+
+1.0.21 arm 2022-06-10
+
+1.0.20 i386 2022-03-11
+- Gimbal - Resend absolute command util reaching the position
+
+1.0.19 i386 2022-02-09
+- DJI_Gimbal
+    - Worker period set to 10 ms
+    - Transaction processing refactored
+
+1.0.18 i386 2022-01-25
+- DJI_Gimbal - Reset TCP socket when needed
+
+1.0.17 i386 2022-01-18
+- Use TCP
+
+1.0.16 i386 2021-12-03
+- DJI_Gimbal - Recover after EthCAN power cycle
+
+1.0.15 i386 2021-12-01
+- DJI_Gimbal - Reset EthCAN on communication error
+
+1.0.14 i386 2021-11-30
+- ControlLink - HOME use a factor and SPEED_BOOST
+- DJI_Gimbal - Internal refactoring
+
+1.0.13 i386
+- DJI_Gimbal - Fixe Track_Speed_Set
+
+1.0.12 i386
+- ControlLink
+    - ATEM_GAIN_ABSOLUTE
+    - SPEED_BOOST set gimbal tracking speed
+
+1.0.11 i386
+- ControlLink - Home position kept for each Gimbal
+
+1.0.10 i386
+- ControlLink - Recalculate speed when boost change
+
+1.0.9 i386
+
+1.0.8 i386
+- ControlLink
+    - GIMBAL NONE ATEM = ... configuration
+    - GIMBAL_SELECT and SPEED_BOOST functions
+- DJI_Gimbal - Retry first communication after connexion (with a EthCAN
+  reset)
+
+1.0.7 i386
+- ControlLink - ATEM_FOCUS_ABSOLUTE for EF cover the full range
+
+1.0.6 i386
+- ControlLink - ATEM_FOCUS_ABSOLUTE for EF do not get position from the
+  camera
+
+1.0.5 i386
+- ControlLink - ATEM_FOCUS_ABSOLUTE for EF or MFT lens
+
+1.0.4 i386
+- ControlLink
+    - Improved error message
+    - Ignore ATEM commands when ATEM port number is not set
+
+1.0.3 i386
+- ControlLink
+    - ATEM_APERTURE_ABSOLUTE, ATEM_APERTURE_AUTO
+    - ATEM_FOCUS_ABSOLUTE, ATEM_FOCUS_AUTO
+    - ATEM_ZOOM, ATEM_ZOOM_ABSOLUTE
+
+1.0.2 i386
+- Gimbal - Default speed = 360 deg/s
+
+1.0.1 i386
+- ControlLink - FOCUS_ABSOLUTE, PITCH_ABSOLUTE, ROLL_ABSOLUTE and YAW_ABSOLUTE
+  functions
+
+1.0.0 i386
+- ControlLink - FORWARD function
+- DJI_Gimbal - Internal thread for speed update and position update
+- IControlLink::Receiver_Set
+- IGamepad::ACTION_DISCONNECTED
+- IGimbal::Track_Switch

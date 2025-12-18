@@ -1,0 +1,6 @@
+
+# Author / Auteur	:	KMS -	Martin Dubois, ing.
+# Product / Produit	:	KmsBase
+# File / Fichier	:	KmsLib_Test/ToolBase.txt
+
+A A

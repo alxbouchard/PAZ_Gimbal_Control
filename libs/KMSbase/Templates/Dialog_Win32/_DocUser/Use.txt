@@ -1,0 +1,39 @@
+
+Author / Auteur		:	KMS	-	Martin Dubois, ing.
+Product / Produit	:	KmsBase
+File / Fichier		:	Template/Dialog_Win32/_DocUser/Use.txt
+
+/English/
+
+[ ] Create a "Win32 Project" project;
+[ ] Modify the project properties;
+[ ] Copy the "TODO.cpp" file into the folder of the new project;
+[ ] Add a "Dialog" resource to the project;
+[ ] Open the new file "resource.h" using "Notepad" and save it using
+    "ANSI" encoding;
+[ ] Open the new file "*.rc" using "Notepad" and save it using "ANSI"
+    encoding;
+[ ] Search for "TODO" in the copied files and process them one by one.
+
+/Francais/
+
+[ ] Creer un projet de type "Win32 Project";
+[ ] Modifier les proprietes du projet;
+[ ] Copier le fichier "TODO.cpp" dans le nouveau projet en le renommant;
+[ ] Ajouter une resource de type "Dialog" au projet;
+[ ] Ouvrir le fichier nouvellement cree "resource.h" en utilisant "Notepad"
+    et le sauvegarder en specifiant "ANSI" comme encodage;
+[ ] Ouvrir le fichier nouvellement cree "*.rc" en utilisant "Notepad" et le
+    sauvegarder en specifiant "ANSI" comme encodage;
+[ ]	Rechercher les "TODO" dans les fichier copies et les adresser un par un.
+
+
+===== Project properties / Proprietes du projet =============================
+
+Configuration Properties
+	General
+		Character Set = "Not Set"
+	C/C++
+		Code Generation
+			Runtime Library = "Multi-threaded Debug (/MTd)" or "Multi-threaded (/MT)"
+

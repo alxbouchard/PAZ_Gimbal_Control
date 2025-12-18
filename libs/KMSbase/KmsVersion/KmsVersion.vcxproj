@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6B390FF4-657D-4884-AFCC-E3F85919DCCC}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>KmsVersion</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>KmsLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>KmsLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="Tests\Slave_00.cmd" />
+    <Text Include="Tests\Master_OK.h" />
+    <Text Include="Tests\Master_01.h" />
+    <Text Include="Tests\Master_00.h" />
+    <Text Include="Tests\Slave_00.txt" />
+    <Text Include="Tests\Slave_01.txt" />
+    <Text Include="Tests\Slave_02.txt" />
+    <Text Include="Tests\Slave_03.txt" />
+    <Text Include="Tests\Slave_04.txt" />
+    <Text Include="Tests\Slave_05.txt" />
+    <Text Include="Tests\Slave_OK.txt" />
+    <Text Include="_DocUser\KmsBase.KmsVersion.ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="KmsVersion.cpp" />
+    <ClCompile Include="Version.cpp" />
+    <ClCompile Include="VersionAndType.cpp" />
+    <ClCompile Include="VersionInfo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Test.cmd" />
+    <None Include="Tests\Slave_00.inf" />
+    <None Include="Tests\Slave_00.iss" />
+    <None Include="Tests\Slave_02.cmd" />
+    <None Include="Tests\Slave_04.cmd" />
+    <None Include="Tests\Slave_05.cmd" />
+    <None Include="Tests\Slave_06.inf" />
+    <None Include="Tests\Slave_06.iss" />
+    <None Include="Tests\Slave_OK.inf" />
+    <None Include="Tests\Slave_OK.iss" />
+    <None Include="Tests\Slave_OK.xml" />
+    <None Include="Tests\Slave_03.cmd" />
+    <None Include="Tests\Slave_OK.cmd" />
+    <None Include="Tests\Slave_01.cmd" />
+    <None Include="Tests\TestMaster.cmd" />
+    <None Include="Tests\TestSlave.cmd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Tests\Slave_00.xml" />
+    <Xml Include="Tests\Slave_01.xml" />
+    <Xml Include="Tests\Slave_02.xml" />
+    <Xml Include="Tests\Slave_03.xml" />
+    <Xml Include="Tests\Slave_04.xml" />
+    <Xml Include="Tests\Slave_05.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tests\Master2_OK.h" />
+    <ClInclude Include="Tests\MasterT_OK.h" />
+    <ClInclude Include="Version.h" />
+    <ClInclude Include="VersionAndType.h" />
+    <ClInclude Include="VersionInfo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Common\Version.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

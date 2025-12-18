@@ -1,0 +1,10 @@
+
+# Author / Auteur	:	KMS -	Martin Dubois, ing.
+# Client			:	TODO
+# Project / Projet	:	TODO
+# File / Fichier	:	TODO/.gitignore
+
+*.bin
+
+Messages.h
+Messages.rc

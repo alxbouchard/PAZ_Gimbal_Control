@@ -1,0 +1,29 @@
+
+# Author    KMS - Martin Dubois, P.Eng.
+# Copyright (C) 2020-2021 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KmsBase
+# File      Export.Darwin.sh.txt
+
+# CODE REVIEW 2021-08-17 KMS - Martin Dubois, P.Eng.
+
+.
+    RunDoxygen.sh
+
+Binaries
+    KmsCopy
+    KmsVersion
+
+Binaries Tests
+    KmsLib_Test
+
+Libraries
+    KmsLib.a
+
+Packages .
+# KmsVersion "kmsbase_" ".pkg" 13
+    kms-kmsbase_3.0-34.pkg
+
+Scripts    .
+    Import.sh
+    Import.sh.txt

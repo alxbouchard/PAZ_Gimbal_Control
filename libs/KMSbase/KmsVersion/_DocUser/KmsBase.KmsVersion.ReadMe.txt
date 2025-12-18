@@ -1,0 +1,27 @@
+
+Author    KMS - Martin Dubois, P.Eng.
+Copyright (C) 2020-2021 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KmsBase
+File      KmsVersion/_DocUser/KmsBase.KmsVersion.ReadMe.txt
+
+3.0.32 Darwin arm64 2022-06-10
+
+3.0.33 Darwin
+
+3.0.31 Jetson
+
+3.0.30 Windows
+
+3.0.29 Windows
+
+3.0.28 Linux
+- Option t force "txt" type for slave files
+- Slave file .conf
+
+3.0.27 Linux
+- Slave file .sh
+
+3.0.26 Windows
+
+3.0.25 Linux

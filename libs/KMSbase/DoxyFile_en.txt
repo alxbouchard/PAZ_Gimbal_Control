@@ -1,0 +1,16 @@
+
+# Author   KMS - Martin Dubois, ing.
+# Product  KmsBase
+# File     DoxyFile_en.txt
+
+# CODE REVIEW  2019-07-19  KMS - Martin Dubois, ing.
+
+ENABLED_SECTIONS    = en
+GENERATE_LATEX      = NO
+HAVE_DOT            = NO
+HIDE_UNDOC_MEMBERS  = YES
+INPUT               = Includes Includes/KmsLib Includes/KmsLib/Windows
+OUTPUT_DIRECTORY    = doxygen_en
+OUTPUT_LANGUAGE     = English
+PROJECT_NAME        = "KmsBase"
+SEARCHENGINE        = NO

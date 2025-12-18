@@ -1,0 +1,35 @@
+
+Author  KMS - Martin Dubois, P.Eng.
+Client  ZAP
+Product Tracking
+File    _DocDev/Build.txt
+
+Name                _________________________________________________________
+
+Date and time       20 ______ - ______ - ______               ______ : ______
+
+Processor           [ ] arm                                          [ ] i386
+
+[ ] File "Common/Version.h"
+
+Version             ______ . ______ . ______ . ______ - _____________________
+
+[ ] File "_DocUser/Tracking.ReadMe.txt"
+[ ] File "ZT_Agent/_DocUser/Tracking.ZT_Agent.ReadMe.txt"
+[ ] File "ZT_Lib/_DocUser/Tracking.ZT_Lib.ReadMe.txt"
+[ ] Disconnect all EthCAN from the computer or network  
+
+===== Darwin only ===========================================================
+[ ] File "User.mk" - Set in release mode
+[ ] Tool "Terminal" - In the product folder
+        ./Build.sh
+[ ] Copy the exported file to the server
+
+[ ] Tool "GIT"
+    - Index modified file and commit them using
+      "{Major.Minor.Build}[_Type]_Darwin_arm|i386" as message
+    - Push the repository to the servers
+
+Time and duration   ______ : ______             ______ heures, ______ minutes
+
+Signature           _________________________________________________________

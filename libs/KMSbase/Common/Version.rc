@@ -1,0 +1,53 @@
+
+// Auteur	:	KMS -	Martin Dubois, ing.
+// Projet   :	KmsBase
+// Fichier  :	Common/Version.rc
+
+// Inclusions
+/////////////////////////////////////////////////////////////////////////////
+
+#include "Windows.h"
+
+// ===== Common =============================================================
+#include "Version.h"
+
+// Resources
+/////////////////////////////////////////////////////////////////////////////
+
+#ifdef _DEBUG
+	#define VER_DEBUG  VS_FF_DEBUG
+#else
+	#define VER_DEBUG  0
+#endif  // _DEBUG
+
+VS_VERSION_INFO  VERSIONINFO
+FILEVERSION    	 VERSION_RC
+PRODUCTVERSION   VERSION_RC
+FILEFLAGSMASK  	 VS_FFI_FILEFLAGSMASK
+FILEFLAGS        VER_DEBUG
+FILEOS         	 VOS__WINDOWS32
+FILETYPE       	 VFT_DLL
+FILESUBTYPE    	 VFT2_UNKNOWN
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "CompanyName"     , "KMS"
+			VALUE "FileDescription" , "KMS Base"
+			VALUE "FileVersion"     , VERSION_STR0
+			VALUE "InternalName"    , "KMS Base"
+			VALUE "LegalCopyright"  , ""
+			VALUE "LegalTrademarks1", ""
+			VALUE "LegalTrademarks2", ""
+			VALUE "OriginalFilename", "KMS Base"
+			VALUE "ProductName"     , VERSION_STR0
+			VALUE "ProductVersion"  , VERSION_STR0
+		END
+	END
+
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END

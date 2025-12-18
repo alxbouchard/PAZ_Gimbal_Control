@@ -1,0 +1,6 @@
+[submodule "modules/react_ui"]
+	path = modules/react_ui
+	url = git@github.com:PrometheusCloud/react_ui.git
+[submodule "modules/control"]
+	path = modules/control
+	url = git@gitlab.kms-quebec.com:mdubois/ZAP_Control.git

@@ -1,0 +1,26 @@
+
+Author    KMS - Martin Dubois, P.Eng.
+Copyright (C) 2021 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KmsBase
+File      _DocDev/Test.txt
+
+Name               __________________________________________________________
+
+Date and time      20 ______ - ______ - ______                ______ : ______
+
+Version            ______ . ______ . ______ . ______ - ______________________
+
+[ ] Connect the RS232 to USB adapter to a USB port of the computer
+[ ] Tool "Windows PowerShell" - In the product folder
+        .\Test_Setup.cmd 2
+[ ] Tool "Windows PowerShell" - In the product folder - Running as administrator
+	    .\Test_Setup.cmd 1
+	    .\Test_Setup.cmd 3
+	    .\Test_Setup.cmd 4
+	    exit
+[ ] Disconnect the RS232 to USB adapter
+
+Time and duration  ______ : ______              ______ heures, ______ minutes
+
+Signature          __________________________________________________________

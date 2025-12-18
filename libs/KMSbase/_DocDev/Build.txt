@@ -1,0 +1,54 @@
+
+Author    KMS - Martin Dubois, P.Eng.
+Copyright (C) 2020-2021 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KmsBase
+File      _DocDev/Build.txt
+
+Name               __________________________________________________________
+
+Date and time      20 ______ - ______ - ______                ______ : ______
+
+Operating system   [ ] OSX           [ ] Ubuntu 18.04          [ ] Windows 10
+
+[ ] File "Common/Version.h" - Edit the version number
+    
+Version            ______ . ______ . ______ . ______ - ______________________
+
+[ ] File "_DocUser/KmsBase.ReadMe.txt"
+[ ] File "KmsCopy/_DocUser/KmsBase.KmsCopy.ReadMe.txt"
+[ ] File "KmsLib/_DocUser/KmsBase.KmsLib.ReadMe.txt"
+[ ] File "KmsVersion/_DocUser/KmsBase.KmsVersion.ReadMe.txt"
+
+===== Linux Only ============================================================
+Arcitecture         [ ] amd64                                       [ ] arm64
+[ ] File "Scripts/control"
+[ ] Tool "Terminal" - In the product folder
+        ./RunDoxygen.sh
+        ./Build.sh
+[ ] Copy the exported files to the server
+
+===== OS X Only =============================================================
+Architecture        [ ] arm64                                        [ ] i386
+[ ] Tools "Terminal" - In the product folder
+        ./Build.sh
+[ ] Copy the exported files to the server
+
+===== Windows Seulement =====================================================
+[ ] Tool "Command Windows" - In the product folder
+        .\RunDoxygen.cmd
+	.\UploadDocumentation.cmd
+[ ] Connect the signing key to the computer
+[ ] Tool "Command Windows" - In the product folder
+        .\Build.cmd
+[ ] Disconnect the signing key from the computer
+
+[ ] Tool "GIT"
+    - Index the modified files and commit them using
+      "{Major.Minor.Build_Type_Darwin|Linux|Windows}" as message
+    - Add the tag "{Major.Minor.Build_Type_Darwin|Linux|Windows}"
+    - Push the repository to the servers
+
+Time and duration  ______ : ______              ______ heures, ______ minutes
+
+Signature          __________________________________________________________

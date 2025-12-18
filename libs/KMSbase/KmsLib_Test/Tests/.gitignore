@@ -1,0 +1,8 @@
+
+# Auteur   KMS - Martin Dubois, ing.
+# Produit  KmsBase
+# Fichier  KmsLib_Test/Tests/.gitignore
+
+/Test.txt
+/TestA.txt
+/TestB.txt

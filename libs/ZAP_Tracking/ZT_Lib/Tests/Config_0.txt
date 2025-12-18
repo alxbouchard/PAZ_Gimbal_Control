@@ -1,0 +1,8 @@
+
+# Author  KMS - Martin Dubois, P.Eng.
+# Client  ZAP
+# Product Tracking
+# File    ZT_Lib/Tests/Config_0.txt
+
+# Invalid configuration line
+INVALID

@@ -1,0 +1,48 @@
+
+# Author    KMS - Martin Dubois, P.Eng.
+# Copyright (C) 2020 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Product   KmsBase
+# File      Scripts/Import.cmd.txt
+
+.	Binaries
+.	Libraries
+
+Binaries/Release_32
+	KmsCopy.exe
+	KmsVersion.exe
+
+Binaries/Release_64
+	KmsCopy.exe
+
+Libraries/Debug_32
+	KmsLib.lib
+
+Libraries/Debug_32_DLL
+	KmsLib.lib
+
+Libraries/Debug_64
+	KmsLib.lib
+
+Libraries/Debug_64_DLL
+	KmsLib.lib
+
+Libraries/Release_32
+	KmsLib.lib
+
+Libraries/Release_32_DLL
+	KmsLib.lib
+
+Libraries/Release_64
+	KmsLib.lib
+
+Libraries/Release_64_DLL
+	KmsLib.lib
+
+Scripts
+	KmsBase_Build_Begin.cmd
+	KmsBase_Build_Installer.cmd
+	KmsBase_CreateCab.cmd
+	KmsBase_Export.cmd
+	KmsBase_Export_Signed.cmd
+	KmsBase_Sign.cmd

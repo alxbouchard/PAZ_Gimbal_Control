@@ -1,0 +1,16 @@
+
+# Author  KMS - Martin Dubois, P.Eng.
+# Client  ZAP
+# Product Tracking
+# File    .gitignore
+
+/.vscode/
+/Binaries/
+/Import/
+/Libraries/
+/Packages/
+
+.DS_Store
+
+*.bak
+*.o

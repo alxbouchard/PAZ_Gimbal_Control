@@ -1,0 +1,9 @@
+
+Auteur	:	KMS -	Martin Dubois, ing.
+Projet	:	KmsBase
+Fichier	:	Templates/Dialog/_DocUser/Utiliser.txt
+
+[ ]	Creer un projet vide de type CLR;
+[ ]	Copier les fichiers du template vers le repertoire de projet nouvellement
+	créé;
+[ ]	Rechercher les "TODO" dans les fichier copies et les adresser un par un.

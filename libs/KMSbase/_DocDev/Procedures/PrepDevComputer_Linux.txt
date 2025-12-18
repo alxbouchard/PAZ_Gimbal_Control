@@ -1,0 +1,17 @@
+
+Author    KMS - Martin Dubois, ing.
+Product   KmsBase
+File      _DocDev/Procedures/PrepDevComputer_Linux.txt
+
+[ ] Install "Ubunto 18.04.2";
+[ ] Tool "Terminal" - Running as "root"
+        apt-get install doxygen
+        apt-get install git
+        apt-get install git-gui
+        apt-get install xutils-dev
+        apt-get install g++
+[ ] Install "AMD APP SDK 3.0"
+    - Copy the installation script from "K:/Logiciels/AMD-APP-SDK";
+    - Execut the installation script as "root"
+[ ] Tool "Terminal" - Running as "root"
+        apt-get install mesa-common-dev

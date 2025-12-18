@@ -1,0 +1,73 @@
+
+Author    KMS - Martin Dubois, P.Eng.
+Copyright (C) 2020-2021 KMS
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KmsBase
+File      KmsLib/_DocUser/KmsBase.KmsLib.ReadMe.txt
+
+3.0.34 Darwin arm64 2022-06-10
+
+3.0.33 Darwin
+
+3.0.31 Jetson
+
+3.0.30 Windows
+
+3.0.29 Windows
+- Fix declaration issue in KmsLib::Walker_Smart
+- KMS_LIB_TOOL_BASE_HANDLER macro
+
+3.0.28 Linux
+
+3.0.27 Linux
+
+3.0.26 Windows
+
+3.0.25 Linux
+
+3.0.24 Windows
+- KmsLib::ToolBase::Parse
+
+3.0.23 Windows
+
+3.0.22 Linux
+
+3.0.21 Windows
+- KmsList::ToolBase::ChangeDir displays current directory
+
+3.0.20 Windows
+- Fix help typo in ToolBase
+
+3.0.19 Windows
+
+3.0.18 Windows
+
+3.0.17 Windows
+- ToolBase use single argument format and ignore unknown arguments
+- HTML5 - Removed
+
+3.0.16
+- KMS_TOOL_BANNER - Fix _DEBUG inversion on Windows
+- ToolBase
+	- Predefined commands : Abort, Delay, Echo, Error, Pause and Repeat
+	- Fix ToolBase::Exit to exit the ParseCommand method
+
+3.0.15
+- Exception - User defined code
+
+3.0.14
+
+3.0.13
+- DriverHandle - Replace Windows::DriverHandle
+- FileHandle - Replace Windows::FileHandle
+- ThreadBase
+- ValueVector
+
+2.5.5
+- Windows::DriverHandle::Connect - aIndex argument
+
+2.5.2
+- TextFileEditor - New class
+
+2.4.18
+- HTML5 - New class

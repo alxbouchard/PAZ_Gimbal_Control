@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{71f8f07a-583f-4bcf-b1ae-3f8c1618fa2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_DocUser">
+      <UniqueIdentifier>{6aeb84a9-fc06-44b4-bfd0-38a3791b7829}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Tests\Master_00.h">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Master_01.h">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Master_OK.h">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_00.cmd">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_OK.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_00.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_01.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_03.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_02.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_04.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="Tests\Slave_05.txt">
+      <Filter>Tests</Filter>
+    </Text>
+    <Text Include="_DocUser\KmsBase.KmsVersion.ReadMe.txt">
+      <Filter>_DocUser</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="KmsVersion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VersionAndType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VersionInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Test.cmd" />
+    <None Include="Tests\TestSlave.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\TestMaster.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_OK.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_OK.xml">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_01.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_02.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_03.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_04.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_05.cmd">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_OK.inf">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_00.inf">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_06.inf">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_OK.iss">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_00.iss">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Slave_06.iss">
+      <Filter>Tests</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Tests\Slave_01.xml">
+      <Filter>Tests</Filter>
+    </Xml>
+    <Xml Include="Tests\Slave_02.xml">
+      <Filter>Tests</Filter>
+    </Xml>
+    <Xml Include="Tests\Slave_03.xml">
+      <Filter>Tests</Filter>
+    </Xml>
+    <Xml Include="Tests\Slave_04.xml">
+      <Filter>Tests</Filter>
+    </Xml>
+    <Xml Include="Tests\Slave_00.xml">
+      <Filter>Tests</Filter>
+    </Xml>
+    <Xml Include="Tests\Slave_05.xml">
+      <Filter>Tests</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionAndType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\Master2_OK.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\MasterT_OK.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Common\Version.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,19 @@
+
+# Author  KMS - Martin Dubois, P.Eng.
+# Client  ZAP
+# Product Tracking
+# File    ZT_Lib/Tests/Config_1.txt
+
+CLEAR
+
+GIMBAL
+
+GIMBAL INDEX = 0
+
+GIMBAL IPv4 = 192.168.0.200
+
+PRESSED BUTTON_A
+
+PRESSED BUTTON_A FOCUS_CALIBRATION
+
+CHANGED ANALOG_0_X YAW 20.0

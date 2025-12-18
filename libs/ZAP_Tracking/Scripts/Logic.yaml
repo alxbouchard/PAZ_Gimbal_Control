@@ -1,0 +1,21 @@
+
+# Author  KMS - Martin Dubois, P.Eng.
+# Client  ZAP
+# Procuct Tracking
+# File    Scrits/Logic.yaml
+
+control_module:
+  scheme: http
+  host: localhost
+  port: 8080
+
+websocket_server:
+  scheme: http
+  host: 192.168.0.100
+  port: 8081
+
+tracking:
+  track: True
+  thread_rate: 30
+  default_tracking_method: pid_same_cam
+

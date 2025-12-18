@@ -1,0 +1,68 @@
+
+# Auteur    KMS - Martin Dubois, P.Eng.
+# Copyright (C) 2020 KMS
+# License   http://www.apache.org/licenses/LICENSE-2.0
+# Produit   KmsBase
+# Fichier   Export.txt
+
+# CODE REVIEW  2020-10-27 KMS - Martin Dubois, P.Eng.
+
+.
+    DoxyFile_en.txt
+    DoxyFile_fr.txt
+
+_DocUser	.
+    KmsBase.ReadMe.txt
+
+Includes
+    KmsBase.h
+    KmsTest.h
+    KmsTool.h
+    Ring.h
+    SafeAPI.h
+    WindowsToLinux.h
+
+Includes/KmsLib
+    CmdLineParser.h
+    DebugLog.h
+    DriverHandle.h
+    Dump.h
+    Exception.h
+    File.h
+    FileHandle.h
+    IgnoreList.h
+    KmsLib.h
+    MemTester.h
+    NetworkAddress.h
+    RLE.h
+    Socket.h
+    String.h
+    TextFile.h
+    TextFileEditor.h
+    ThreadBase.h
+    ToolBase.h
+    ValueVector.h
+    Walker.h
+    Walker_Smart.h
+
+Includes/KmsLib/Linux
+    Windows.h
+
+Includes/KmsLib/Windows
+    ComPortHandle.h
+    RegistryKey.h
+    Service.h
+    SystemLog.h
+    Windows.h
+
+KmsCopy/_DocUser .
+	KmsBase.KmsCopy.ReadMe.txt
+
+KmsLib/_DocUser	.
+    KmsBase.KmsLib.ReadMe.txt
+
+KmsVersion/_DocUser .
+	KmsBase.KmsVersion.ReadMe.txt
+
+Scripts	.
+    Import.txt

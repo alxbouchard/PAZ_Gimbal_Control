@@ -1,0 +1,3 @@
+# ZAP Gimbal UI - Python Dependencies
+aiohttp>=3.9.0
+python-socketio>=5.10.0

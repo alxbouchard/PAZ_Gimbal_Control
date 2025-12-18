@@ -1,0 +1,21 @@
+kmsquebe
+Replace this line with the password!
+binary
+cd public_html
+cd en
+cd KmsBase
+mput doxygen_en\html\*.css
+mput doxygen_en\html\*.html
+mput doxygen_en\html\*.js
+mput doxygen_en\html\*.png
+cd ..
+cd ..
+cd fr
+cd KmsBase
+mput doxygen_fr\html\*.css
+mput doxygen_fr\html\*.html
+mput doxygen_fr\html\*.js
+mput doxygen_fr\html\*.png
+cd ..
+cd ..
+quit

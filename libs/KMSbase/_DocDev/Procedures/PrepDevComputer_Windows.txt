@@ -1,0 +1,25 @@
+
+Authot    KMS - Martin Dubois, P.Eng.
+Copyright (C) 2020 KMS. All rights reserved.
+License   http://www.apache.org/licenses/LICENSE-2.0
+Product   KmsBase
+File      _DocDev/Procedures/PrepDevComputer_Windows.txt
+
+Name                _________________________________________________________
+
+Date and time       20 ______ - ______ - ______               ______ : ______
+
+Computer            _________________________________________________________
+
+[ ] Install "Doxygen" (K:\TheKit\Doxygen\doxygen-1.8.18-setup.exe)
+[ ] Install "GIT" (K:\TheKit\GIT\Git-2.21.0-64-bit.exe)
+[ ] Configure "GIT" - Tool "Git Bash"
+		git config --global user.name "{FirstName} {LastName}"
+		git config --global user.email "{UserName}@kms-quebec.com"
+		exit
+[ ] Install "Inno Setup 6.1.12"
+[ ] Install "Visual Studio 2019"
+
+Time and duration   ______ : ______           ______ hours and ______ minutes
+
+Signature           _________________________________________________________

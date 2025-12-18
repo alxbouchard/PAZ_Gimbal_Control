@@ -1,0 +1,246 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2043
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KmsLib", "KmsLib\KmsLib.vcxproj", "{08D0977C-7912-4A9E-9937-CC0AF78956A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{38892F6F-7CC9-480A-9DF7-D0BC716F9B62}"
+	ProjectSection(SolutionItems) = preProject
+		Common\Version.h = Common\Version.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Includes", "Includes", "{980DE536-B130-41B8-A65B-F1DEDC466C43}"
+	ProjectSection(SolutionItems) = preProject
+		Includes\KmsBase.h = Includes\KmsBase.h
+		Includes\KmsTest.h = Includes\KmsTest.h
+		Includes\KmsTool.h = Includes\KmsTool.h
+		Includes\Ring.h = Includes\Ring.h
+		Includes\SafeAPI.h = Includes\SafeAPI.h
+		Includes\WindowsToLinux.h = Includes\WindowsToLinux.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KmsLib", "KmsLib", "{EE152025-CE8B-4099-89C4-C60CC1B7797C}"
+	ProjectSection(SolutionItems) = preProject
+		Includes\KmsLib\CmdLineParser.h = Includes\KmsLib\CmdLineParser.h
+		Includes\KmsLib\DebugLog.h = Includes\KmsLib\DebugLog.h
+		Includes\KmsLib\DriverHandle.h = Includes\KmsLib\DriverHandle.h
+		Includes\KmsLib\Dump.h = Includes\KmsLib\Dump.h
+		Includes\KmsLib\Exception.h = Includes\KmsLib\Exception.h
+		Includes\KmsLib\File.h = Includes\KmsLib\File.h
+		Includes\KmsLib\FileHandle.h = Includes\KmsLib\FileHandle.h
+		Includes\KmsLib\IgnoreList.h = Includes\KmsLib\IgnoreList.h
+		Includes\KmsLib\KmsLib.h = Includes\KmsLib\KmsLib.h
+		Includes\KmsLib\MemTester.h = Includes\KmsLib\MemTester.h
+		Includes\KmsLib\NetworkAddress.h = Includes\KmsLib\NetworkAddress.h
+		Includes\KmsLib\RLE.h = Includes\KmsLib\RLE.h
+		Includes\KmsLib\Socket.h = Includes\KmsLib\Socket.h
+		Includes\KmsLib\String.h = Includes\KmsLib\String.h
+		Includes\KmsLib\TextFile.h = Includes\KmsLib\TextFile.h
+		Includes\KmsLib\TextFileEditor.h = Includes\KmsLib\TextFileEditor.h
+		Includes\KmsLib\ThreadBase.h = Includes\KmsLib\ThreadBase.h
+		Includes\KmsLib\ToolBase.h = Includes\KmsLib\ToolBase.h
+		Includes\KmsLib\ValueVector.h = Includes\KmsLib\ValueVector.h
+		Includes\KmsLib\Walker.h = Includes\KmsLib\Walker.h
+		Includes\KmsLib\Walker_Smart.h = Includes\KmsLib\Walker_Smart.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Windows", "Windows", "{EB8648E4-E353-45CF-982E-02296B919104}"
+	ProjectSection(SolutionItems) = preProject
+		Includes\KmsLib\Windows\ComPortHandle.h = Includes\KmsLib\Windows\ComPortHandle.h
+		Includes\KmsLib\Windows\RegistryKey.h = Includes\KmsLib\Windows\RegistryKey.h
+		Includes\KmsLib\Windows\Service.h = Includes\KmsLib\Windows\Service.h
+		Includes\KmsLib\Windows\SystemLog.h = Includes\KmsLib\Windows\SystemLog.h
+		Includes\KmsLib\Windows\Windows.h = Includes\KmsLib\Windows\Windows.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_DocDev", "_DocDev", "{00EEE413-B9A0-44E8-9AE8-8FD3EAC01E7D}"
+	ProjectSection(SolutionItems) = preProject
+		_DocDev\Build.txt = _DocDev\Build.txt
+		_DocDev\Test.txt = _DocDev\Test.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Procedures", "Procedures", "{EA71243B-5549-4F76-9D8B-547E36BE8BB4}"
+	ProjectSection(SolutionItems) = preProject
+		_DocDev\Procedures\PrepDevComputer_Linux.txt = _DocDev\Procedures\PrepDevComputer_Linux.txt
+		_DocDev\Procedures\PrepDevComputer_Windows.txt = _DocDev\Procedures\PrepDevComputer_Windows.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{F88CC9DD-1927-455C-96C7-834931B958F9}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\Import.cmd = Scripts\Import.cmd
+		Scripts\Import.cmd.txt = Scripts\Import.cmd.txt
+		Scripts\Import.sh = Scripts\Import.sh
+		Scripts\Import.sh.txt = Scripts\Import.sh.txt
+		Scripts\Import.txt = Scripts\Import.txt
+		Scripts\KmsBase_Build_Begin.cmd = Scripts\KmsBase_Build_Begin.cmd
+		Scripts\KmsBase_Build_Installer.cmd = Scripts\KmsBase_Build_Installer.cmd
+		Scripts\KmsBase_CreateCab.cmd = Scripts\KmsBase_CreateCab.cmd
+		Scripts\KmsBase_Export.cmd = Scripts\KmsBase_Export.cmd
+		Scripts\KmsBase_Export_Signed.cmd = Scripts\KmsBase_Export_Signed.cmd
+		Scripts\KmsBase_Sign.cmd = Scripts\KmsBase_Sign.cmd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EDCA233C-71A7-4C3E-9F35-105EA6BCE7CF}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		Build.cmd = Build.cmd
+		DoxyFile_en.txt = DoxyFile_en.txt
+		DoxyFile_fr.txt = DoxyFile_fr.txt
+		Export.cmd = Export.cmd
+		Export.cmd.txt = Export.cmd.txt
+		Export.sh = Export.sh
+		Export.sh.txt = Export.sh.txt
+		Export.txt = Export.txt
+		ForEachConfig_DLL.cmd = ForEachConfig_DLL.cmd
+		ForEachConfig_NoDLL.cmd = ForEachConfig_NoDLL.cmd
+		License.txt = License.txt
+		Product.iss = Product.iss
+		README.md = README.md
+		RunDoxygen.cmd = RunDoxygen.cmd
+		Test.cmd = Test.cmd
+		Test.sh = Test.sh
+		Test_Setup.cmd = Test_Setup.cmd
+		UploadDocumentation.cmd = UploadDocumentation.cmd
+		UploadDocumentation.cmd.txt = UploadDocumentation.cmd.txt
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KmsLib_Test", "KmsLib_Test\KmsLib_Test.vcxproj", "{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}"
+	ProjectSection(ProjectDependencies) = postProject
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7} = {08D0977C-7912-4A9E-9937-CC0AF78956A7}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{17C49143-B3BF-492F-AA07-D08EBEE3756D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dialog", "Templates\Dialog\Dialog.vcxproj", "{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "Templates\Service\Service.vcxproj", "{195EC26E-8CB6-4654-A00E-FC084D9691A9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7} = {08D0977C-7912-4A9E-9937-CC0AF78956A7}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpenCL", "OpenCL", "{F49BE6B7-3A5C-4BB6-9ACA-537A91C8740C}"
+	ProjectSection(SolutionItems) = preProject
+		Includes\KmsLib\OpenCL\Buffer.h = Includes\KmsLib\OpenCL\Buffer.h
+		Includes\KmsLib\OpenCL\CommandQueue.h = Includes\KmsLib\OpenCL\CommandQueue.h
+		Includes\KmsLib\OpenCL\Context.h = Includes\KmsLib\OpenCL\Context.h
+		Includes\KmsLib\OpenCL\Kernel.h = Includes\KmsLib\OpenCL\Kernel.h
+		Includes\KmsLib\OpenCL\Program.h = Includes\KmsLib\OpenCL\Program.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Linux", "Linux", "{3A99A792-0D5E-41AD-9EBA-3AFFC3CE6956}"
+	ProjectSection(SolutionItems) = preProject
+		Includes\KmsLib\Linux\Windows.h = Includes\KmsLib\Linux\Windows.h
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KmsCopy", "KmsCopy\KmsCopy.vcxproj", "{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_DocUser", "_DocUser", "{720F3E0F-7548-4599-AE64-A4B048B5C65C}"
+	ProjectSection(SolutionItems) = preProject
+		_DocUser\KmsBase.ReadMe.txt = _DocUser\KmsBase.ReadMe.txt
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KmsVersion", "KmsVersion\KmsVersion.vcxproj", "{6B390FF4-657D-4884-AFCC-E3F85919DCCC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7} = {08D0977C-7912-4A9E-9937-CC0AF78956A7}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_DLL|Win32 = Debug_DLL|Win32
+		Debug_DLL|x64 = Debug_DLL|x64
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release_DLL|Win32 = Release_DLL|Win32
+		Release_DLL|x64 = Release_DLL|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug_DLL|Win32.ActiveCfg = Debug_DLL|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug_DLL|Win32.Build.0 = Debug_DLL|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug_DLL|x64.ActiveCfg = Debug_DLL|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug_DLL|x64.Build.0 = Debug_DLL|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug|Win32.Build.0 = Debug|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug|x64.ActiveCfg = Debug|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Debug|x64.Build.0 = Debug|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release_DLL|Win32.ActiveCfg = Release_DLL|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release_DLL|Win32.Build.0 = Release_DLL|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release_DLL|x64.ActiveCfg = Release_DLL|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release_DLL|x64.Build.0 = Release_DLL|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release|Win32.ActiveCfg = Release|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release|Win32.Build.0 = Release|Win32
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release|x64.ActiveCfg = Release|x64
+		{08D0977C-7912-4A9E-9937-CC0AF78956A7}.Release|x64.Build.0 = Release|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug_DLL|Win32.ActiveCfg = Debug_DLL|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug_DLL|Win32.Build.0 = Debug_DLL|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug_DLL|x64.ActiveCfg = Debug_DLL|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug_DLL|x64.Build.0 = Debug_DLL|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug|Win32.Build.0 = Debug|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug|x64.ActiveCfg = Debug|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Debug|x64.Build.0 = Debug|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release_DLL|Win32.ActiveCfg = Release_DLL|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release_DLL|Win32.Build.0 = Release_DLL|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release_DLL|x64.ActiveCfg = Release_DLL|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release_DLL|x64.Build.0 = Release_DLL|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release|Win32.ActiveCfg = Release|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release|Win32.Build.0 = Release|Win32
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release|x64.ActiveCfg = Release|x64
+		{E7A45A2C-BD9F-4BAB-83DE-0BDBA896FE64}.Release|x64.Build.0 = Release|x64
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Debug_DLL|Win32.ActiveCfg = Debug|Win32
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Debug_DLL|x64.ActiveCfg = Debug|x64
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Debug|x64.ActiveCfg = Debug|x64
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Release_DLL|Win32.ActiveCfg = Release|Win32
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Release_DLL|x64.ActiveCfg = Release|x64
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Release|Win32.ActiveCfg = Release|Win32
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7}.Release|x64.ActiveCfg = Release|x64
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Debug_DLL|Win32.ActiveCfg = Debug|Win32
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Debug_DLL|x64.ActiveCfg = Debug|x64
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Debug|x64.ActiveCfg = Debug|x64
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Release_DLL|Win32.ActiveCfg = Release|Win32
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Release_DLL|x64.ActiveCfg = Release|x64
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Release|Win32.ActiveCfg = Release|Win32
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9}.Release|x64.ActiveCfg = Release|x64
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Debug_DLL|Win32.ActiveCfg = Debug|Win32
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Debug_DLL|x64.ActiveCfg = Debug|x64
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Debug|Win32.Build.0 = Debug|Win32
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Debug|x64.ActiveCfg = Debug|x64
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Debug|x64.Build.0 = Debug|x64
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Release_DLL|Win32.ActiveCfg = Release|Win32
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Release_DLL|x64.ActiveCfg = Release|x64
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Release|Win32.ActiveCfg = Release|Win32
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Release|Win32.Build.0 = Release|Win32
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Release|x64.ActiveCfg = Release|x64
+		{3917AFAC-2F19-4B3A-95A9-8A2C45CFBF14}.Release|x64.Build.0 = Release|x64
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Debug_DLL|Win32.ActiveCfg = Debug|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Debug_DLL|x64.ActiveCfg = Release|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Debug|Win32.Build.0 = Debug|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Debug|x64.ActiveCfg = Debug|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Release_DLL|Win32.ActiveCfg = Release|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Release_DLL|x64.ActiveCfg = Release|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Release|Win32.ActiveCfg = Release|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Release|Win32.Build.0 = Release|Win32
+		{6B390FF4-657D-4884-AFCC-E3F85919DCCC}.Release|x64.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EE152025-CE8B-4099-89C4-C60CC1B7797C} = {980DE536-B130-41B8-A65B-F1DEDC466C43}
+		{EB8648E4-E353-45CF-982E-02296B919104} = {EE152025-CE8B-4099-89C4-C60CC1B7797C}
+		{EA71243B-5549-4F76-9D8B-547E36BE8BB4} = {00EEE413-B9A0-44E8-9AE8-8FD3EAC01E7D}
+		{DD5E6A78-6F66-4DC8-B886-1DE03865D0E7} = {17C49143-B3BF-492F-AA07-D08EBEE3756D}
+		{195EC26E-8CB6-4654-A00E-FC084D9691A9} = {17C49143-B3BF-492F-AA07-D08EBEE3756D}
+		{F49BE6B7-3A5C-4BB6-9ACA-537A91C8740C} = {EE152025-CE8B-4099-89C4-C60CC1B7797C}
+		{3A99A792-0D5E-41AD-9EBA-3AFFC3CE6956} = {EE152025-CE8B-4099-89C4-C60CC1B7797C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {22B477B9-5D9A-465A-83B5-249237BC216F}
+	EndGlobalSection
+EndGlobal

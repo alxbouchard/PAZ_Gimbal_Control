@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Author    KMS - Martin Dubois, P.Eng.
+  Copyright (C) 2020 KMS. All rights reserved.
+  License   http://www.apache.org/licenses/LICENSE-2.0
+  Product   KmsBase
+  File      KmsVersion/Tests/Slave_02.xml
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+	<Product Id="*" Name="SC2000 Software" Language="1033" Version="0.1.4.0" Manufacturer="KMS" UpgradeCode="e22fe9c5-1269-4757-ba44-6e1ef8b0d5fd">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of SC2000 Software is already installed." />
+    <Media Id="1" Cabinet="Cab1.cab" EmbedCab="yes" />
+
+		<Feature Id="ProductFeature" Title="SC2000 Software" Level="1">
+      <ComponentGroupRef Id="DriversAndTools" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="SC2000">
+
+          <Component Id="Tools" Guid="46db8d47-efdc-4843-831A-8d0eebaddb13" Win64="yes">
+            <File Source="Install.cmd"    />
+            <File Source="Uninstall.cmd"  />
+            <File Source="..\SC2000DriverA\Temp.xml" />
+            <File Source="..\x64\Release\SC2000Command.exe"       />
+            <File Source="..\x64\Release\SC2000Interface.dll"     />
+            <File Source="..\x64\Release\SC2000Panel.exe"         />
+            <File Source="..\x64\Release\SC2000Service.exe"       />
+            <File Source="..\x64\Release\SC2000TimeProvider.dll"  />
+          </Component>
+
+          <Directory Id ="DriverA" Name="SC2000DriverA">
+            <Component Id="DriverA" Guid="46db8d47-efdc-4843-831A-8d0eebaddb14" Win64="yes">
+              <File Id="SC2000DriverA_SC2000DriverA.cat"        Source="..\x64\Release\SC2000DriverA\SC2000DriverA.cat"        />
+              <File Id="SC2000DriverA_SC2000DriverA.inf"        Source="..\x64\Release\SC2000DriverA\SC2000DriverA.inf"        />
+              <File Id="SC2000DriverA_SC2000DriverA.sys"        Source="..\x64\Release\SC2000DriverA\SC2000DriverA.sys"        />
+              <File Id="SC2000DriverA_WdfCoinstaller01011.dll"  Source="..\x64\Release\SC2000DriverA\WdfCoinstaller01011.dll"  />
+            </Component>
+          </Directory>
+
+          <Directory Id ="DriverB" Name="SC2000DriverB">
+            <Component Id="DriverB" Guid="46db8d47-efdc-4843-831A-8d0eebaddb15" Win64="yes">
+              <File Id="SC2000DriverB_SC2000DriverB.cat"        Source="..\x64\Release\SC2000DriverB\SC2000DriverB.cat"        />
+              <File Id="SC2000DriverB_SC2000DriverB.inf"        Source="..\x64\Release\SC2000DriverB\SC2000DriverB.inf"        />
+              <File Id="SC2000DriverB_SC2000DriverB.sys"        Source="..\x64\Release\SC2000DriverB\SC2000DriverB.sys"        />
+              <File Id="SC2000DriverB_WdfCoinstaller01011.dll"  Source="..\x64\Release\SC2000DriverB\WdfCoinstaller01011.dll"  />
+            </Component>
+          </Directory>
+
+          <Directory Id ="DriverS" Name="SC2000DriverS">
+            <Component Id="DriverS" Guid="46db8d47-efdc-4843-831A-8d0eebaddb16" Win64="yes">
+              <File Id="SC2000DriverS_SC2000DriverS.cat"        Source="..\x64\Release\SC2000DriverS\SC2000DriverS.cat"        />
+              <File Id="SC2000DriverS_SC2000DriverS.inf"        Source="..\x64\Release\SC2000DriverS\SC2000DriverS.inf"        />
+              <File Id="SC2000DriverS_SC2000DriverS.sys"        Source="..\x64\Release\SC2000DriverS\SC2000DriverS.sys"        />
+              <File Id="SC2000DriverS_WdfCoinstaller01011.dll"  Source="..\x64\Release\SC2000DriverS\WdfCoinstaller01011.dll"  />
+            </Component>
+          </Directory>
+
+        </Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="DriversAndTools">
+      <ComponentRef Id="DriverA"  />
+      <ComponentRef Id="DriverB"  />
+      <ComponentRef Id="DriverS"  />
+      <ComponentRef Id="Tools"    />
+    </ComponentGroup>
+    <CustomAction Id="Install"    Directory="INSTALLFOLDER" ExeCommand='"[System64Folder]cmd.exe" "/c" "[INSTALLFOLDER]Install.cmd"'    Execute="deferred" Impersonate="no" Return="check" />
+    <CustomAction Id="Uninstall"  Directory="INSTALLFOLDER" ExeCommand='"[System64Folder]cmd.exe" "/c" "[INSTALLFOLDER]Uninstall.cmd"'  Execute="deferred" Impersonate="no" Return="check" />
+    <InstallExecuteSequence>
+      <Custom Action="Uninstall"  After   ="InstallInitialize" >REMOVE     </Custom>
+      <Custom Action="Install"    Before  ="InstallFinalize"   >NOT REMOVE </Custom>
+    </InstallExecuteSequence>
+  </Fragment>
+
+</Wix>
+<!-- KmsVersion (Version=") (" ) 4 -->
