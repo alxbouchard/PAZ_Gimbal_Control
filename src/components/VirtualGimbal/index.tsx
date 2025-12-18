@@ -227,49 +227,37 @@ function GimbalModel() {
             ))}
           </group>
 
-          {/* ==================== ROLL MOTOR (positioned so camera is centered on pitch axis Y=0) ==================== */}
-          <group position={[0.42, -0.26, 0]}>
-            {/* Roll motor - cylinder facing forward (Z axis) */}
-            <mesh rotation={[Math.PI / 2, 0, 0]} material={motorMaterial}>
-              <cylinderGeometry args={[0.065, 0.065, 0.09, 32]} />
-            </mesh>
-            {/* Motor ring front */}
-            <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[0.055, 0.005, 8, 32]} />
-              <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
-            </mesh>
-
-            {/* ==================== ROLL GROUP (camera rotates around Z axis from here) ==================== */}
+          {/* ==================== ROLL MOTOR & ROLL AXIS ==================== */}
+          {/* Roll axis positioned so camera center is at Y=0 and Z=0 relative to pitch */}
+          {/* X=0.42 compensates for pitch motor offset (-0.42) so camera is at X=0 for yaw */}
+          <group position={[0.42, 0, 0]}>
+            {/* ==================== ROLL GROUP - Camera rotates around Z axis HERE ==================== */}
+            {/* rollRef is at X=0, Y=0, Z=0 relative to pitch = camera center */}
             <group ref={rollRef}>
-              {/* ==================== QUICK RELEASE PLATE (CENTERED under roll motor) ==================== */}
-              <group position={[0, -0.08, 0]}>
-                {/* Main plate */}
-                <mesh material={darkGrayMaterial}>
-                  <boxGeometry args={[0.35, 0.025, 0.09]} />
+
+              {/* Roll motor - BEHIND the camera center (negative Z) */}
+              <group position={[0, 0, -0.25]}>
+                <mesh rotation={[Math.PI / 2, 0, 0]} material={motorMaterial}>
+                  <cylinderGeometry args={[0.065, 0.065, 0.09, 32]} />
                 </mesh>
-                {/* Side rails */}
-                <mesh position={[0, 0, 0.04]}>
-                  <boxGeometry args={[0.32, 0.03, 0.01]} />
-                  <meshStandardMaterial color="#1a1a1a" />
+                {/* Motor ring front */}
+                <mesh position={[0, 0, 0.04]} rotation={[Math.PI / 2, 0, 0]}>
+                  <torusGeometry args={[0.055, 0.005, 8, 32]} />
+                  <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
                 </mesh>
-                <mesh position={[0, 0, -0.04]}>
-                  <boxGeometry args={[0.32, 0.03, 0.01]} />
-                  <meshStandardMaterial color="#1a1a1a" />
+                {/* Motor ring back */}
+                <mesh position={[0, 0, -0.04]} rotation={[Math.PI / 2, 0, 0]}>
+                  <torusGeometry args={[0.055, 0.005, 8, 32]} />
+                  <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
                 </mesh>
-                {/* Adjustment knobs */}
-                <mesh position={[0.14, 0.02, 0]}>
-                  <cylinderGeometry args={[0.012, 0.012, 0.015, 16]} />
-                  <meshStandardMaterial color="#333333" />
-                </mesh>
-                <mesh position={[-0.14, 0.02, 0]}>
-                  <cylinderGeometry args={[0.01, 0.01, 0.012, 16]} />
-                  <meshStandardMaterial color="#cc0000" />
+                {/* Connection arm from motor to camera */}
+                <mesh position={[0, 0, 0.12]} material={darkGrayMaterial}>
+                  <boxGeometry args={[0.12, 0.025, 0.18]} />
                 </mesh>
               </group>
 
-              {/* ==================== CAMERA (CENTERED on roll axis, facing FORWARD / +Z) ==================== */}
-              {/* Adjust Y so camera center aligns with pitch motor axis (Y=0 relative to pitch) */}
-              <group position={[0, 0.26, 0]}>
+              {/* ==================== CAMERA - CENTERED at roll axis origin (0,0,0) ==================== */}
+              <group position={[0, 0, 0]}>
               {/* Camera body - DSLR style */}
               <RoundedBox args={[0.38, 0.28, 0.22]} radius={0.015} smoothness={4}>
                 <meshStandardMaterial color="#3a3a3a" metalness={0.2} roughness={0.8} transparent opacity={0.85} />
