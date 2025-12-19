@@ -640,8 +640,9 @@ async def telemetry_broadcast_loop():
                 "timestamp": int(time.time() * 1000),
                 "position": gimbal_state["position"].copy(),
                 "speed": gimbal_state["speed"].copy(),
-                "temperature": 35 + (hash(time.time()) % 10),
-                "batteryLevel": 85,
+                # Only send real data - null for virtual mode (no fake data)
+                "temperature": None if virtual_mode else 35,
+                "batteryLevel": None if virtual_mode else 85,
             }
             await sio.emit('gimbal:telemetry', telemetry)
         except Exception as e:
