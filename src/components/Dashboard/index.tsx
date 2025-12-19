@@ -42,6 +42,24 @@ function StatCard({ label, value, unit, icon, color = 'gimbal-accent' }: StatCar
 export function Dashboard() {
   const { position, telemetryHistory, connected, tracking, speedBoost } = useGimbalStore();
 
+  // Get latest telemetry data for temperature and battery
+  const latestTelemetry = telemetryHistory.length > 0
+    ? telemetryHistory[telemetryHistory.length - 1]
+    : null;
+
+  const temperature = latestTelemetry?.temperature ?? null;
+  const batteryLevel = latestTelemetry?.batteryLevel ?? null;
+
+  // Calculate uptime from first telemetry entry
+  const uptime = useMemo(() => {
+    if (telemetryHistory.length === 0) return null;
+    const firstTimestamp = telemetryHistory[0].timestamp;
+    const elapsed = Date.now() - firstTimestamp;
+    const hours = Math.floor(elapsed / 3600000);
+    const minutes = Math.floor((elapsed % 3600000) / 60000);
+    return { hours, minutes, startTime: new Date(firstTimestamp) };
+  }, [telemetryHistory]);
+
   // Format telemetry data for charts
   const chartData = useMemo(() => {
     return telemetryHistory.map((data, index) => ({
@@ -204,28 +222,35 @@ export function Dashboard() {
             <span className="text-sm text-gimbal-text-dim">Temperature</span>
           </div>
           <div className="flex items-end gap-2">
-            <span className="text-2xl font-semibold text-gimbal-text">38</span>
+            <span className="text-2xl font-semibold text-gimbal-text">
+              {temperature !== null ? temperature.toFixed(0) : '--'}
+            </span>
             <span className="text-sm text-gimbal-text-dim mb-1">°C</span>
           </div>
           <div className="mt-2 h-2 bg-gimbal-bg rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-gimbal-success via-gimbal-warning to-gimbal-error"
-              style={{ width: '45%' }}
+              style={{ width: temperature !== null ? `${Math.min(100, (temperature / 60) * 100)}%` : '0%' }}
             />
           </div>
         </div>
 
         <div className="bg-gimbal-panel rounded-xl border border-gimbal-border p-4">
           <div className="flex items-center gap-3 mb-3">
-            <Battery size={18} className="text-gimbal-success" />
+            <Battery size={18} className={batteryLevel !== null && batteryLevel < 20 ? 'text-gimbal-error' : 'text-gimbal-success'} />
             <span className="text-sm text-gimbal-text-dim">Battery</span>
           </div>
           <div className="flex items-end gap-2">
-            <span className="text-2xl font-semibold text-gimbal-text">85</span>
+            <span className="text-2xl font-semibold text-gimbal-text">
+              {batteryLevel !== null ? batteryLevel.toFixed(0) : '--'}
+            </span>
             <span className="text-sm text-gimbal-text-dim mb-1">%</span>
           </div>
           <div className="mt-2 h-2 bg-gimbal-bg rounded-full overflow-hidden">
-            <div className="h-full bg-gimbal-success" style={{ width: '85%' }} />
+            <div
+              className={`h-full ${batteryLevel !== null && batteryLevel < 20 ? 'bg-gimbal-error' : 'bg-gimbal-success'}`}
+              style={{ width: batteryLevel !== null ? `${batteryLevel}%` : '0%' }}
+            />
           </div>
         </div>
 
@@ -235,10 +260,14 @@ export function Dashboard() {
             <span className="text-sm text-gimbal-text-dim">Uptime</span>
           </div>
           <div className="flex items-end gap-2">
-            <span className="text-2xl font-semibold text-gimbal-text">2h 34m</span>
+            <span className="text-2xl font-semibold text-gimbal-text">
+              {uptime ? `${uptime.hours}h ${uptime.minutes}m` : '--'}
+            </span>
           </div>
           <p className="text-xs text-gimbal-text-dim mt-2">
-            Session started at 10:30 AM
+            {uptime
+              ? `Session started at ${uptime.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+              : 'No session data'}
           </p>
         </div>
       </div>

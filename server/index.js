@@ -38,7 +38,12 @@ let activeGimbalId = 'gimbal-1';
 const TICK_RATE = 60;
 const TICK_INTERVAL = 1000 / TICK_RATE;
 
+// Telemetry counter for regular updates
+let telemetryCounter = 0;
+const TELEMETRY_INTERVAL = 30; // Send telemetry every 30 ticks (~500ms at 60fps)
+
 function updateGimbal() {
+  telemetryCounter++;
   const speedMultiplier = gimbalState.speedBoost ? 2 : 1;
 
   // Apply speed to position
@@ -49,10 +54,9 @@ function updateGimbal() {
 
   if (gimbalState.speed.yaw !== 0) {
     gimbalState.position.yaw += gimbalState.speed.yaw * speedMultiplier * 0.5;
-    // Wrap yaw around -180 to 180
-    if (gimbalState.position.yaw > 180) gimbalState.position.yaw -= 360;
-    if (gimbalState.position.yaw < -180) gimbalState.position.yaw += 360;
   }
+  // Always normalize yaw to -180 to 180
+  gimbalState.position.yaw = ((gimbalState.position.yaw % 360) + 540) % 360 - 180;
 
   if (gimbalState.speed.roll !== 0) {
     gimbalState.position.roll += gimbalState.speed.roll * speedMultiplier * 0.3;
@@ -62,8 +66,9 @@ function updateGimbal() {
   // Broadcast position to all clients
   io.emit('gimbal:position', gimbalState.position);
 
-  // Send telemetry periodically (every 500ms)
-  if (Math.random() < 0.03) {
+  // Send telemetry at regular intervals (~500ms)
+  if (telemetryCounter >= TELEMETRY_INTERVAL) {
+    telemetryCounter = 0;
     io.emit('gimbal:telemetry', {
       timestamp: Date.now(),
       position: { ...gimbalState.position },

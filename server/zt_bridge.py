@@ -618,20 +618,13 @@ async def position_broadcast_loop():
                     gimbal_state["position"]["roll"] += gimbal_state["speed"]["roll"] * 0.05 * speed_mult
 
                 # Apply DJI Ronin RS mechanical limits
-                # Note: DJI specs show full mechanical range (-112° to +214° pitch, -95° to +240° roll)
-                # but these include camera-upside-down positions not used in normal operation.
-                # Using practical limits that match real-world gimbal usage:
-                #
-                # Tilt (Pitch): -90° (straight down) to +90° (straight up)
-                # This is the usable range for filming - beyond this the camera orientation flips
+                # Tilt (Pitch): -90° to +90°
                 gimbal_state["position"]["pitch"] = max(-90, min(90, gimbal_state["position"]["pitch"]))
-                #
-                # Roll: ±45° for standard operation (DJI default), ±90° for Dutch angle shots
-                # Full mechanical range is -95° to +240° but impractical for normal use
+                # Roll: ±45° for standard operation
                 gimbal_state["position"]["roll"] = max(-45, min(45, gimbal_state["position"]["roll"]))
-                #
-                # Pan (Yaw): 360° continuous rotation (no wrap-around)
-                # The yaw can go to any value (360°, 720°, -540°, etc.)
+                # Pan (Yaw): Normalize to -180° to +180° for display
+                yaw = gimbal_state["position"]["yaw"]
+                gimbal_state["position"]["yaw"] = ((yaw % 360) + 540) % 360 - 180
 
         except Exception as e:
             print(f"Broadcast error: {e}")
