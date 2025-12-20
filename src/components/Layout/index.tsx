@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { version } from '../../../package.json';
 import {
   Gamepad2,
   Eye,
@@ -78,7 +79,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               <h1 className="text-sm font-semibold text-gimbal-text">
                 PAZ Gimbal Control
               </h1>
-              <p className="text-xs text-gimbal-text-dim">v1.0.0</p>
+              <p className="text-xs text-gimbal-text-dim">v{version}</p>
             </div>
           </div>
 
