@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useGimbalStore } from '../store/gimbalStore';
+import { useGamepadStore, type GamepadAction, type AxisAction } from '../store/gamepadStore';
 import { gimbalSocket } from '../services/websocket';
 
 interface GamepadState {
@@ -7,20 +8,21 @@ interface GamepadState {
   rightStick: { x: number; y: number };
   buttons: boolean[];
   triggers: { left: number; right: number };
+  axes: number[];
 }
 
 export function useGamepad() {
   const { sensitivity, connected } = useGimbalStore();
+  const { mapping, setConnectedGamepad } = useGamepadStore();
   const animationFrameRef = useRef<number>();
   const previousButtonsRef = useRef<boolean[]>([]);
-  const deadzone = 0.15;
 
-  const applyDeadzone = (value: number): number => {
+  const applyDeadzone = useCallback((value: number): number => {
+    const deadzone = mapping.deadzone;
     if (Math.abs(value) < deadzone) return 0;
-    // Scale the value to account for the deadzone
     const sign = value > 0 ? 1 : -1;
     return sign * ((Math.abs(value) - deadzone) / (1 - deadzone));
-  };
+  }, [mapping.deadzone]);
 
   const getGamepadState = useCallback((gamepad: Gamepad): GamepadState => {
     return {
@@ -37,8 +39,98 @@ export function useGamepad() {
         left: gamepad.buttons[6]?.value || 0,
         right: gamepad.buttons[7]?.value || 0,
       },
+      axes: gamepad.axes.map((a) => applyDeadzone(a)),
     };
+  }, [applyDeadzone]);
+
+  // Execute a button action
+  const executeButtonAction = useCallback((action: GamepadAction) => {
+    const store = useGimbalStore.getState();
+
+    switch (action) {
+      case 'toggleTracking':
+        gimbalSocket.toggleTracking(!store.tracking);
+        break;
+      case 'goHome':
+        gimbalSocket.goHome();
+        break;
+      case 'setHome':
+        gimbalSocket.setHome();
+        break;
+      case 'toggleSpeedBoost':
+        gimbalSocket.toggleSpeedBoost(!store.speedBoost);
+        break;
+      case 'emergencyStop':
+        gimbalSocket.stopSpeed();
+        break;
+      case 'prevGimbal': {
+        const gimbals = store.availableGimbals;
+        const currentId = store.activeGimbalId;
+        const currentIndex = gimbals.findIndex((g) => g.id === currentId);
+        const prevIndex = (currentIndex - 1 + gimbals.length) % gimbals.length;
+        if (gimbals[prevIndex]) {
+          gimbalSocket.selectGimbal(gimbals[prevIndex].id);
+        }
+        break;
+      }
+      case 'nextGimbal': {
+        const gimbals = store.availableGimbals;
+        const currentId = store.activeGimbalId;
+        const currentIndex = gimbals.findIndex((g) => g.id === currentId);
+        const nextIndex = (currentIndex + 1) % gimbals.length;
+        if (gimbals[nextIndex]) {
+          gimbalSocket.selectGimbal(gimbals[nextIndex].id);
+        }
+        break;
+      }
+      case 'zoomIn':
+        gimbalSocket.setZoom(Math.min(100, store.zoom + 10));
+        break;
+      case 'zoomOut':
+        gimbalSocket.setZoom(Math.max(0, store.zoom - 10));
+        break;
+      case 'focusNear':
+        gimbalSocket.setFocus(Math.min(100, store.focus + 5));
+        break;
+      case 'focusFar':
+        gimbalSocket.setFocus(Math.max(0, store.focus - 5));
+        break;
+      case 'none':
+      default:
+        break;
+    }
   }, []);
+
+  // Apply axis action
+  const applyAxisAction = useCallback((action: AxisAction, value: number, axisSensitivity: number, inverted: boolean) => {
+    const store = useGimbalStore.getState();
+    const adjustedValue = (inverted ? -value : value) * axisSensitivity * sensitivity;
+
+    switch (action) {
+      case 'pitch':
+        gimbalSocket.setSpeed({ pitch: adjustedValue });
+        break;
+      case 'yaw':
+        gimbalSocket.setSpeed({ yaw: adjustedValue });
+        break;
+      case 'roll':
+        gimbalSocket.setSpeed({ roll: adjustedValue });
+        break;
+      case 'focus':
+        if (Math.abs(value) > 0.1) {
+          gimbalSocket.setFocus(Math.max(0, Math.min(100, store.focus - adjustedValue * 2)));
+        }
+        break;
+      case 'zoom':
+        if (Math.abs(value) > 0.1) {
+          gimbalSocket.setZoom(Math.max(0, Math.min(100, store.zoom - adjustedValue * 2)));
+        }
+        break;
+      case 'none':
+      default:
+        break;
+    }
+  }, [sensitivity]);
 
   const processGamepad = useCallback(() => {
     if (!connected) {
@@ -53,83 +145,47 @@ export function useGamepad() {
       const state = getGamepadState(gamepad);
       const prevButtons = previousButtonsRef.current;
 
-      // Left stick - Pitch/Yaw
-      if (state.leftStick.x !== 0 || state.leftStick.y !== 0) {
-        gimbalSocket.setSpeed({
-          yaw: state.leftStick.x * sensitivity,
-          pitch: -state.leftStick.y * sensitivity, // Invert Y
-        });
-      }
+      // Process button actions (on press, not hold)
+      Object.entries(mapping.buttons).forEach(([indexStr, action]) => {
+        const index = parseInt(indexStr);
+        if (state.buttons[index] && !prevButtons[index]) {
+          executeButtonAction(action);
+        }
+      });
 
-      // Right stick - Roll/Focus
-      if (state.rightStick.x !== 0) {
-        gimbalSocket.setSpeed({
-          roll: state.rightStick.x * sensitivity,
-        });
-      }
-      if (Math.abs(state.rightStick.y) > 0.1) {
-        const currentFocus = useGimbalStore.getState().focus;
-        gimbalSocket.setFocus(
-          Math.max(0, Math.min(100, currentFocus - state.rightStick.y * 2))
-        );
-      }
+      // Process axis actions
+      Object.entries(mapping.axes).forEach(([indexStr, config]) => {
+        const index = parseInt(indexStr);
+        const value = state.axes[index] || 0;
+        if (value !== 0) {
+          applyAxisAction(config.action, value, config.sensitivity, config.inverted);
+        }
+      });
 
-      // Button A (index 0) - Toggle Tracking
-      if (state.buttons[0] && !prevButtons[0]) {
-        const currentTracking = useGimbalStore.getState().tracking;
-        gimbalSocket.toggleTracking(!currentTracking);
-      }
+      // Process triggers for speed multiplier
+      const { leftTrigger, rightTrigger } = mapping;
+      if (leftTrigger.action === 'speedMultiplier' || rightTrigger.action === 'speedMultiplier') {
+        let speedMultiplier = 1.0;
 
-      // Button B (index 1) - Go Home
-      if (state.buttons[1] && !prevButtons[1]) {
-        gimbalSocket.goHome();
-      }
+        if (rightTrigger.action === 'speedMultiplier') {
+          const rtValue = rightTrigger.inverted ? -state.triggers.right : state.triggers.right;
+          speedMultiplier += rtValue * rightTrigger.sensitivity;
+        }
+        if (leftTrigger.action === 'speedMultiplier') {
+          const ltValue = leftTrigger.inverted ? state.triggers.left : -state.triggers.left;
+          speedMultiplier += ltValue * leftTrigger.sensitivity;
+        }
 
-      // Button X (index 2) - Set Home
-      if (state.buttons[2] && !prevButtons[2]) {
-        gimbalSocket.setHome();
-      }
-
-      // Button Y (index 3) - Toggle Speed Boost
-      if (state.buttons[3] && !prevButtons[3]) {
-        const currentBoost = useGimbalStore.getState().speedBoost;
-        gimbalSocket.toggleSpeedBoost(!currentBoost);
-      }
-
-      // Start button (index 9) - Emergency Stop
-      if (state.buttons[9] && !prevButtons[9]) {
-        gimbalSocket.stopSpeed();
-      }
-
-      // Triggers - Speed modifier
-      const triggerBoost = state.triggers.right - state.triggers.left;
-      if (Math.abs(triggerBoost) > 0.1) {
-        // Could be used for speed adjustment
-      }
-
-      // LB/RB (4/5) - Gimbal selection
-      if (state.buttons[4] && !prevButtons[4]) {
-        // Previous gimbal
-        const gimbals = useGimbalStore.getState().availableGimbals;
-        const currentId = useGimbalStore.getState().activeGimbalId;
-        const currentIndex = gimbals.findIndex((g) => g.id === currentId);
-        const prevIndex = (currentIndex - 1 + gimbals.length) % gimbals.length;
-        gimbalSocket.selectGimbal(gimbals[prevIndex].id);
-      }
-      if (state.buttons[5] && !prevButtons[5]) {
-        // Next gimbal
-        const gimbals = useGimbalStore.getState().availableGimbals;
-        const currentId = useGimbalStore.getState().activeGimbalId;
-        const currentIndex = gimbals.findIndex((g) => g.id === currentId);
-        const nextIndex = (currentIndex + 1) % gimbals.length;
-        gimbalSocket.selectGimbal(gimbals[nextIndex].id);
+        if (state.triggers.left > 0.1 || state.triggers.right > 0.1) {
+          gimbalSocket.setSpeedMultiplier(Math.max(0.25, Math.min(2.0, speedMultiplier)));
+        }
       }
 
       previousButtonsRef.current = [...state.buttons];
     }
 
     animationFrameRef.current = requestAnimationFrame(processGamepad);
-  }, [connected, sensitivity, getGamepadState]);
+  }, [connected, mapping, getGamepadState, executeButtonAction, applyAxisAction]);
 
   useEffect(() => {
     // Start polling
@@ -138,10 +194,12 @@ export function useGamepad() {
     // Gamepad connection events
     const handleGamepadConnected = (e: GamepadEvent) => {
       console.log('Gamepad connected:', e.gamepad.id);
+      setConnectedGamepad(e.gamepad.id);
     };
 
     const handleGamepadDisconnected = (e: GamepadEvent) => {
       console.log('Gamepad disconnected:', e.gamepad.id);
+      setConnectedGamepad(null);
     };
 
     window.addEventListener('gamepadconnected', handleGamepadConnected);
@@ -154,5 +212,5 @@ export function useGamepad() {
       window.removeEventListener('gamepadconnected', handleGamepadConnected);
       window.removeEventListener('gamepaddisconnected', handleGamepadDisconnected);
     };
-  }, [processGamepad]);
+  }, [processGamepad, setConnectedGamepad]);
 }

@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { Activity, Thermometer, Battery, Clock, Target } from 'lucide-react';
+import { Activity, Thermometer, Battery, Clock, Target, Monitor, Radio, Cpu } from 'lucide-react';
 import { useGimbalStore } from '../../store/gimbalStore';
 
 interface StatCardProps {
@@ -40,7 +40,10 @@ function StatCard({ label, value, unit, icon, color = 'gimbal-accent' }: StatCar
 }
 
 export function Dashboard() {
-  const { position, telemetryHistory, connected, tracking, speedBoost } = useGimbalStore();
+  const { position, telemetryHistory, connected, tracking, speedBoost, gimbalMode, availableGimbals, activeGimbalId } = useGimbalStore();
+
+  // Get active gimbal info
+  const activeGimbal = availableGimbals.find(g => g.id === activeGimbalId);
 
   // Get latest telemetry data for temperature and battery
   const latestTelemetry = telemetryHistory.length > 0
@@ -138,6 +141,59 @@ export function Dashboard() {
           color={connected ? 'gimbal-success' : 'gimbal-error'}
         />
       </div>
+
+      {/* Gimbal Info Card */}
+      {connected && activeGimbal && (
+        <div className={`rounded-xl border p-4 ${
+          gimbalMode === 'virtual'
+            ? 'bg-blue-500/10 border-blue-500/30'
+            : 'bg-purple-500/10 border-purple-500/30'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${
+                gimbalMode === 'virtual' ? 'bg-blue-500/20' : 'bg-purple-500/20'
+              }`}>
+                {gimbalMode === 'virtual' ? (
+                  <Monitor size={20} className="text-blue-400" />
+                ) : (
+                  <Radio size={20} className="text-purple-400" />
+                )}
+              </div>
+              <div>
+                <h3 className={`font-semibold ${
+                  gimbalMode === 'virtual' ? 'text-blue-400' : 'text-purple-400'
+                }`}>
+                  {gimbalMode === 'virtual' ? 'Virtual Mode' : 'Real Gimbal Active'}
+                </h3>
+                <p className="text-sm text-gimbal-text-dim">
+                  {activeGimbal.name} • {activeGimbal.model}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center gap-2 text-sm text-gimbal-text-dim">
+                <Cpu size={14} />
+                <span>{activeGimbal.ip}</span>
+              </div>
+              <p className="text-xs text-gimbal-text-dim mt-1">
+                {availableGimbals.length} gimbal{availableGimbals.length > 1 ? 's' : ''} available
+              </p>
+            </div>
+          </div>
+          {/* Show info about virtual mode mirroring */}
+          {gimbalMode === 'virtual' && (
+            <div className="mt-3 pt-3 border-t border-blue-500/20 text-xs text-gimbal-text-dim">
+              Virtual gimbal simulates movement. Connect a real gimbal via EthCAN to control hardware.
+            </div>
+          )}
+          {gimbalMode === 'real' && (
+            <div className="mt-3 pt-3 border-t border-purple-500/20 text-xs text-gimbal-text-dim">
+              Controlling real gimbal. The virtual gimbal mirrors this position for visualization.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Mode indicators */}
       <div className="flex gap-4">

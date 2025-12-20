@@ -9,6 +9,8 @@ import {
   Focus,
   RotateCcw,
   Gauge,
+  Radio,
+  Monitor,
 } from 'lucide-react';
 import { useGimbalStore } from '../../store/gimbalStore';
 import { gimbalSocket } from '../../services/websocket';
@@ -166,6 +168,82 @@ function VerticalSlider({ label, value, onChange, icon, disabled }: SliderProps)
   );
 }
 
+function GimbalSwitcher() {
+  const { availableGimbals, activeGimbalId } = useGimbalStore();
+
+  const handleSelectGimbal = (gimbalId: string) => {
+    gimbalSocket.selectGimbal(gimbalId);
+  };
+
+  if (availableGimbals.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <Radio size={14} className="text-gimbal-text-dim" />
+        <span className="text-xs font-medium text-gimbal-text-dim uppercase tracking-wider">
+          Gimbal Selection
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {availableGimbals.map((gimbal, index) => {
+          const isActive = gimbal.id === activeGimbalId;
+          const isVirtual = gimbal.mode === 'virtual';
+          const isConnected = gimbal.connected;
+
+          return (
+            <motion.button
+              key={gimbal.id}
+              onClick={() => handleSelectGimbal(gimbal.id)}
+              className={`relative flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+                isActive
+                  ? isVirtual
+                    ? 'bg-blue-500/20 border-blue-500 text-blue-400'
+                    : 'bg-purple-500/20 border-purple-500 text-purple-400'
+                  : isConnected || isVirtual
+                    ? 'bg-gimbal-bg border-gimbal-border text-gimbal-text hover:border-gimbal-accent'
+                    : 'bg-gimbal-bg border-gimbal-border/50 text-gimbal-text-dim opacity-60'
+              }`}
+              whileHover={{ scale: isConnected || isVirtual ? 1.02 : 1 }}
+              whileTap={{ scale: isConnected || isVirtual ? 0.98 : 1 }}
+              disabled={!isConnected && !isVirtual}
+            >
+              {isVirtual ? (
+                <Monitor size={14} />
+              ) : (
+                <Radio size={14} />
+              )}
+              <span className="text-sm font-medium">
+                {index + 1}
+              </span>
+              <span className="text-xs truncate max-w-[80px]">
+                {gimbal.name}
+              </span>
+              {isActive && (
+                <motion.div
+                  className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
+                    isVirtual ? 'bg-blue-500' : 'bg-purple-500'
+                  }`}
+                  layoutId="activeGimbalIndicator"
+                  initial={false}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+              {!isVirtual && !isConnected && (
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] text-gimbal-error bg-gimbal-panel px-1 rounded">
+                  offline
+                </span>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function SpeedSlider({ value, onChange, disabled }: { value: number; onChange: (v: number) => void; disabled?: boolean }) {
   const speedPresets = [
     { label: 'Slow', value: 0.25, color: 'bg-blue-500' },
@@ -312,6 +390,9 @@ export function ControlPanel() {
           )}
         </div>
       </div>
+
+      {/* Gimbal Switcher */}
+      <GimbalSwitcher />
 
       {/* Speed Control */}
       <SpeedSlider

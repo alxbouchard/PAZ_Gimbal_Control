@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Gamepad2,
@@ -11,8 +11,13 @@ import {
   WifiOff,
   Target,
   Zap,
+  Monitor,
+  Radio,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { useGimbalStore } from '../../store/gimbalStore';
+import { gimbalSocket } from '../../services/websocket';
 import type { TabId } from '../../types';
 
 interface Tab {
@@ -36,7 +41,28 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const [activeTab, setActiveTab] = useState<TabId>('control');
-  const { connected, tracking, speedBoost, position } = useGimbalStore();
+  const [gimbalDropdownOpen, setGimbalDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { connected, tracking, speedBoost, position, gimbalMode, availableGimbals, activeGimbalId } = useGimbalStore();
+
+  // Get active gimbal info
+  const activeGimbal = availableGimbals.find(g => g.id === activeGimbalId);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setGimbalDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleGimbalSelect = (gimbalId: string) => {
+    gimbalSocket.selectGimbal(gimbalId);
+    setGimbalDropdownOpen(false);
+  };
 
   return (
     <div className="h-full flex flex-col bg-gimbal-bg">
@@ -67,6 +93,62 @@ export function MainLayout({ children }: MainLayoutProps) {
 
             {/* Status badges */}
             <div className="flex items-center gap-2">
+              {/* Gimbal selector dropdown */}
+              {connected && (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setGimbalDropdownOpen(!gimbalDropdownOpen)}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs cursor-pointer transition-colors ${
+                      gimbalMode === 'virtual'
+                        ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                        : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
+                    }`}
+                  >
+                    {gimbalMode === 'virtual' ? <Monitor size={12} /> : <Radio size={12} />}
+                    <span className="max-w-[100px] truncate">
+                      {activeGimbal?.name || (gimbalMode === 'virtual' ? 'Virtual' : 'Real Gimbal')}
+                    </span>
+                    <ChevronDown size={12} className={`transition-transform ${gimbalDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {gimbalDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-1 w-56 bg-gimbal-panel border border-gimbal-border rounded-lg shadow-lg z-50 overflow-hidden">
+                      <div className="py-1">
+                        <div className="px-3 py-2 text-xs text-gimbal-text-dim border-b border-gimbal-border">
+                          Select Gimbal ({availableGimbals.length} available)
+                        </div>
+                        {availableGimbals.map((gimbal) => (
+                          <button
+                            key={gimbal.id}
+                            onClick={() => handleGimbalSelect(gimbal.id)}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                              gimbal.id === activeGimbalId
+                                ? 'bg-gimbal-accent/20 text-gimbal-accent'
+                                : 'text-gimbal-text hover:bg-gimbal-border/50'
+                            }`}
+                          >
+                            {gimbal.mode === 'virtual' ? (
+                              <Monitor size={14} className="text-blue-400" />
+                            ) : (
+                              <Radio size={14} className="text-purple-400" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{gimbal.name}</div>
+                              <div className="text-xs text-gimbal-text-dim truncate">
+                                {gimbal.model} • {gimbal.ip}
+                              </div>
+                            </div>
+                            {gimbal.id === activeGimbalId && (
+                              <Check size={14} className="text-gimbal-accent" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               {speedBoost && (
                 <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-gimbal-warning/20 text-gimbal-warning text-xs">
                   <Zap size={12} />

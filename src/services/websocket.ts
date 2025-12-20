@@ -53,6 +53,9 @@ class GimbalSocketService {
           store.setConnected(status.connected);
           store.setTracking(status.tracking);
           store.setSpeedBoost(status.speedBoost);
+          if (status.mode) {
+            store.setGimbalMode(status.mode);
+          }
         });
 
         this.socket.on('gimbal:telemetry', (data) => {
@@ -169,6 +172,31 @@ class GimbalSocketService {
   selectGimbal(gimbalId: string): void {
     if (this.socket?.connected) {
       this.socket.emit('gimbal:select', gimbalId);
+    }
+  }
+
+  // Gimbal management
+  addGimbal(config: { name: string; ip: string }): void {
+    if (this.socket?.connected) {
+      this.socket.emit('gimbal:add', config);
+    }
+  }
+
+  removeGimbal(gimbalId: string): void {
+    if (this.socket?.connected) {
+      this.socket.emit('gimbal:remove', gimbalId);
+    }
+  }
+
+  updateGimbal(config: { id: string; name?: string; ip?: string }): void {
+    if (this.socket?.connected) {
+      this.socket.emit('gimbal:update', config);
+    }
+  }
+
+  connectGimbal(gimbalId: string): void {
+    if (this.socket?.connected) {
+      this.socket.emit('gimbal:connect', gimbalId);
     }
   }
 }

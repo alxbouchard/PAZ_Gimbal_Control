@@ -11,12 +11,16 @@ Usage:  python3 zt_bridge.py [--port 3001] [--zt-path /path/to/ZAP_Tracking]
 
 import argparse
 import asyncio
+import json
 import os
 import sys
 import time
 import ctypes
 from ctypes import c_void_p, c_int, c_double, c_char, c_uint, c_ubyte, POINTER, Structure
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+
+# Config file path
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'gimbals.json')
 
 # WebSocket server
 try:
@@ -66,22 +70,115 @@ class ZTP_Info(Structure):
 
 # ============== Global State ==============
 
-gimbal_state = {
-    "position": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
-    "speed": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
-    "tracking": False,
-    "speedBoost": False,
-    "zoom": 50.0,
-    "focus": 50.0,
-    "home": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
-    "connected": False,
-}
+# Each gimbal has its own state
+gimbal_states: Dict[str, Dict[str, Any]] = {}
+
+def create_gimbal_state():
+    """Create a new gimbal state dictionary."""
+    return {
+        "position": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+        "speed": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+        "tracking": False,
+        "speedBoost": False,
+        "zoom": 50.0,
+        "focus": 50.0,
+        "home": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+        "connected": False,
+    }
+
+# Legacy gimbal_state reference (points to active gimbal's state)
+gimbal_state = create_gimbal_state()
 
 available_gimbals = []
 home_animation = {"active": False, "speed": 1.0, "target": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0}}
 active_gimbal_id: Optional[str] = None
-virtual_mode = True
+real_gimbals: Dict[str, Any] = {}  # Store real gimbal wrappers by ID
 current_speed_multiplier = 1.0  # Global speed multiplier (0.1 to 2.0)
+
+# Virtual gimbal always exists and mirrors the active real gimbal
+VIRTUAL_GIMBAL_ID = "gimbal-virtual"
+
+
+def get_active_state() -> Dict[str, Any]:
+    """Get the state of the currently active gimbal."""
+    global gimbal_state
+    if active_gimbal_id and active_gimbal_id in gimbal_states:
+        return gimbal_states[active_gimbal_id]
+    return gimbal_state
+
+
+def is_real_gimbal_active() -> bool:
+    """Check if a real gimbal is currently active (not virtual)."""
+    return active_gimbal_id is not None and active_gimbal_id != VIRTUAL_GIMBAL_ID
+
+
+def get_active_mode() -> str:
+    """Get the mode of the active gimbal."""
+    if is_real_gimbal_active():
+        return "real"
+    return "virtual"
+
+
+def save_gimbal_config():
+    """Save gimbal configuration to JSON file."""
+    config = {
+        "gimbals": [
+            {
+                "id": g["id"],
+                "name": g["name"],
+                "ip": g.get("ip", ""),
+                "mode": g.get("mode", "real")
+            }
+            for g in available_gimbals
+            if g["id"] != VIRTUAL_GIMBAL_ID  # Don't save virtual gimbal
+        ]
+    }
+    try:
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=2)
+        print(f"Saved gimbal config to {CONFIG_FILE}")
+    except Exception as e:
+        print(f"Error saving gimbal config: {e}")
+
+
+def load_gimbal_config():
+    """Load gimbal configuration from JSON file."""
+    global available_gimbals, gimbal_states
+
+    if not os.path.exists(CONFIG_FILE):
+        print("No gimbal config file found, starting fresh")
+        return
+
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+
+        for gimbal_cfg in config.get("gimbals", []):
+            gimbal_id = gimbal_cfg.get("id")
+            if not gimbal_id or gimbal_id == VIRTUAL_GIMBAL_ID:
+                continue
+
+            # Check if already exists
+            if any(g["id"] == gimbal_id for g in available_gimbals):
+                continue
+
+            gimbal_info = {
+                "id": gimbal_id,
+                "name": gimbal_cfg.get("name", "Gimbal"),
+                "model": "DJI RS/Ronin",
+                "connected": False,
+                "ip": gimbal_cfg.get("ip", ""),
+                "mode": "real"
+            }
+
+            new_state = create_gimbal_state()
+            gimbal_states[gimbal_id] = new_state
+            available_gimbals.append(gimbal_info)
+
+            print(f"Loaded gimbal from config: {gimbal_info['name']} at {gimbal_info['ip']}")
+
+    except Exception as e:
+        print(f"Error loading gimbal config: {e}")
 
 
 # ============== ZT_Python Library Wrapper ==============
@@ -348,14 +445,15 @@ def set_gimbal_speed(pitch: float = 0, yaw: float = 0, roll: float = 0):
 
     gimbal_state["speed"] = {"pitch": pitch, "yaw": yaw, "roll": roll}
 
-    if zt_wrapper and not virtual_mode:
+    # Send to real gimbal if one is active
+    if is_real_gimbal_active() and active_gimbal_id in real_gimbals:
         try:
-            zt_wrapper.set_speed(pitch, roll, yaw)
+            real_gimbals[active_gimbal_id].set_speed(pitch, roll, yaw)
         except Exception as e:
             print(f"Error setting speed: {e}")
             # Safety: stop gimbal on error
             try:
-                zt_wrapper.stop_speed()
+                real_gimbals[active_gimbal_id].stop_speed()
             except:
                 pass
 
@@ -368,9 +466,10 @@ def stop_gimbal():
     _prev_speed = {"pitch": 0.0, "yaw": 0.0, "roll": 0.0}
     gimbal_state["speed"] = {"pitch": 0, "yaw": 0, "roll": 0}
 
-    if zt_wrapper and not virtual_mode:
+    # Stop real gimbal if active
+    if is_real_gimbal_active() and active_gimbal_id in real_gimbals:
         try:
-            zt_wrapper.stop_speed()
+            real_gimbals[active_gimbal_id].stop_speed()
         except Exception as e:
             print(f"Error stopping gimbal: {e}")
 
@@ -385,9 +484,10 @@ def go_home():
     }
     print("Going home (speed adjustable in real-time)")
 
-    if zt_wrapper and not virtual_mode:
+    # Send to real gimbal if active
+    if is_real_gimbal_active() and active_gimbal_id in real_gimbals:
         try:
-            zt_wrapper.set_position(
+            real_gimbals[active_gimbal_id].set_position(
                 gimbal_state["home"]["pitch"],
                 gimbal_state["home"]["roll"],
                 gimbal_state["home"]["yaw"]
@@ -407,11 +507,15 @@ def get_gimbal_position() -> Dict[str, float]:
     """Get current gimbal position."""
     global gimbal_state
 
-    if zt_wrapper and not virtual_mode:
+    # Read from real gimbal if active
+    if is_real_gimbal_active() and active_gimbal_id in real_gimbals:
         try:
-            pos = zt_wrapper.get_position()
+            pos = real_gimbals[active_gimbal_id].get_position()
             if pos:
                 gimbal_state["position"] = pos
+                # Mirror to virtual gimbal
+                if VIRTUAL_GIMBAL_ID in gimbal_states:
+                    gimbal_states[VIRTUAL_GIMBAL_ID]["position"] = pos.copy()
         except Exception as e:
             print(f"Error getting position: {e}")
 
@@ -423,9 +527,10 @@ def set_focus(value: float):
     global gimbal_state
     gimbal_state["focus"] = value
 
-    if zt_wrapper and not virtual_mode:
+    # Send to real gimbal if active
+    if is_real_gimbal_active() and active_gimbal_id in real_gimbals:
         try:
-            zt_wrapper.set_focus_position(value)
+            real_gimbals[active_gimbal_id].set_focus_position(value)
         except Exception as e:
             print(f"Error setting focus: {e}")
 
@@ -440,9 +545,10 @@ def toggle_tracking(enabled: bool):
     global gimbal_state
     gimbal_state["tracking"] = enabled
 
-    if zt_wrapper and not virtual_mode:
+    # Send to real gimbal if active
+    if is_real_gimbal_active() and active_gimbal_id in real_gimbals:
         try:
-            zt_wrapper.track_switch()
+            real_gimbals[active_gimbal_id].track_switch()
         except Exception as e:
             print(f"Error toggling tracking: {e}")
 
@@ -471,6 +577,7 @@ async def connect(sid, environ):
         "connected": gimbal_state["connected"],
         "tracking": gimbal_state["tracking"],
         "speedBoost": gimbal_state["speedBoost"],
+        "mode": get_active_mode(),
     }, room=sid)
 
 
@@ -520,6 +627,7 @@ async def handle_toggle_tracking(sid, enabled):
         "connected": gimbal_state["connected"],
         "tracking": gimbal_state["tracking"],
         "speedBoost": gimbal_state["speedBoost"],
+        "mode": get_active_mode(),
     })
 
 
@@ -532,6 +640,7 @@ async def handle_toggle_speed_boost(sid, enabled):
         "connected": gimbal_state["connected"],
         "tracking": gimbal_state["tracking"],
         "speedBoost": gimbal_state["speedBoost"],
+        "mode": get_active_mode(),
     })
 
 
@@ -554,12 +663,233 @@ async def handle_calibrate_focus(sid):
     calibrate_focus()
 
 
+@sio.on('gimbal:add')
+async def handle_add_gimbal(sid, gimbal_config):
+    """Add a new gimbal configuration."""
+    global available_gimbals, gimbal_states
+
+    name = gimbal_config.get('name', 'New Gimbal')
+    ip = gimbal_config.get('ip', '')
+
+    if not ip:
+        await sio.emit('error', 'IP address is required', room=sid)
+        return
+
+    # Check if IP already exists
+    for g in available_gimbals:
+        if g.get('ip') == ip:
+            await sio.emit('error', f'Gimbal with IP {ip} already exists', room=sid)
+            return
+
+    # Generate unique ID
+    gimbal_id = f"gimbal-{ip.replace('.', '-')}"
+
+    # Create gimbal info
+    gimbal_info = {
+        "id": gimbal_id,
+        "name": name,
+        "model": "DJI RS/Ronin",
+        "connected": False,  # Will try to connect
+        "ip": ip,
+        "mode": "real"
+    }
+
+    # Create state for this gimbal
+    new_state = create_gimbal_state()
+    gimbal_states[gimbal_id] = new_state
+    available_gimbals.append(gimbal_info)
+
+    # Save config to file
+    save_gimbal_config()
+
+    print(f'Added gimbal: {name} at {ip}')
+
+    # Notify all clients
+    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:added', gimbal_info)
+
+    # Try to connect to the gimbal
+    asyncio.create_task(try_connect_gimbal(gimbal_id, ip))
+
+
+@sio.on('gimbal:remove')
+async def handle_remove_gimbal(sid, gimbal_id):
+    """Remove a gimbal configuration."""
+    global available_gimbals, gimbal_states, active_gimbal_id, gimbal_state
+
+    # Cannot remove virtual gimbal
+    if gimbal_id == VIRTUAL_GIMBAL_ID:
+        await sio.emit('error', 'Cannot remove virtual gimbal', room=sid)
+        return
+
+    # Find and remove gimbal
+    gimbal_to_remove = None
+    for g in available_gimbals:
+        if g['id'] == gimbal_id:
+            gimbal_to_remove = g
+            break
+
+    if not gimbal_to_remove:
+        await sio.emit('error', f'Gimbal {gimbal_id} not found', room=sid)
+        return
+
+    # Disconnect if connected
+    if gimbal_id in real_gimbals:
+        try:
+            # Clean up wrapper
+            del real_gimbals[gimbal_id]
+        except:
+            pass
+
+    # Remove from lists
+    available_gimbals = [g for g in available_gimbals if g['id'] != gimbal_id]
+    if gimbal_id in gimbal_states:
+        del gimbal_states[gimbal_id]
+
+    # If this was the active gimbal, switch to virtual
+    if active_gimbal_id == gimbal_id:
+        active_gimbal_id = VIRTUAL_GIMBAL_ID
+        gimbal_state = gimbal_states[VIRTUAL_GIMBAL_ID]
+        await sio.emit('gimbal:selected', VIRTUAL_GIMBAL_ID)
+
+    # Save config
+    save_gimbal_config()
+
+    print(f'Removed gimbal: {gimbal_id}')
+
+    # Notify all clients
+    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:removed', gimbal_id)
+
+
+@sio.on('gimbal:update')
+async def handle_update_gimbal(sid, gimbal_config):
+    """Update gimbal configuration (name, IP)."""
+    global available_gimbals
+
+    gimbal_id = gimbal_config.get('id')
+    if not gimbal_id or gimbal_id == VIRTUAL_GIMBAL_ID:
+        return
+
+    for g in available_gimbals:
+        if g['id'] == gimbal_id:
+            if 'name' in gimbal_config:
+                g['name'] = gimbal_config['name']
+            if 'ip' in gimbal_config:
+                old_ip = g['ip']
+                new_ip = gimbal_config['ip']
+                if old_ip != new_ip:
+                    g['ip'] = new_ip
+                    # Reconnect with new IP
+                    asyncio.create_task(try_connect_gimbal(gimbal_id, new_ip))
+            break
+
+    save_gimbal_config()
+    await sio.emit('gimbal:list', available_gimbals)
+
+
+@sio.on('gimbal:connect')
+async def handle_connect_gimbal(sid, gimbal_id):
+    """Try to connect to a gimbal."""
+    for g in available_gimbals:
+        if g['id'] == gimbal_id and g.get('ip'):
+            await try_connect_gimbal(gimbal_id, g['ip'])
+            break
+
+
+async def try_connect_gimbal(gimbal_id: str, ip: str):
+    """Attempt to connect to a gimbal at the given IP."""
+    global available_gimbals, gimbal_states, zt_wrapper
+
+    print(f"Attempting to connect to gimbal at {ip}...")
+
+    # Update status to connecting
+    for g in available_gimbals:
+        if g['id'] == gimbal_id:
+            g['connecting'] = True
+            break
+    await sio.emit('gimbal:list', available_gimbals)
+
+    try:
+        # Try to find ZT library path
+        zt_path = None
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), '..', 'libs', 'ZAP_Tracking'),
+            os.path.expanduser('~/Documents/Code/ZAP_Tracking'),
+        ]
+        for path in possible_paths:
+            if os.path.exists(path):
+                zt_path = os.path.abspath(path)
+                break
+
+        if zt_path:
+            # Create new wrapper for this gimbal
+            wrapper = ZTLibWrapper(zt_path)
+            wrapper.create_system()
+
+            # Try to detect gimbal at specific IP
+            # Note: This might need modification based on how ZT library handles IPs
+            result = wrapper.detect_gimbals()
+            gimbal = wrapper.get_gimbal(0)
+
+            if gimbal:
+                wrapper.activate_gimbal()
+                real_gimbals[gimbal_id] = wrapper
+
+                # Update gimbal info
+                for g in available_gimbals:
+                    if g['id'] == gimbal_id:
+                        g['connected'] = True
+                        g['connecting'] = False
+                        info = wrapper.get_info()
+                        if info:
+                            g['model'] = f"v{info.get('version', '?')}"
+                        break
+
+                gimbal_states[gimbal_id]['connected'] = True
+                print(f"Connected to gimbal at {ip}")
+            else:
+                raise Exception("No gimbal found at this address")
+        else:
+            raise Exception("ZT library not found")
+
+    except Exception as e:
+        print(f"Failed to connect to gimbal at {ip}: {e}")
+        for g in available_gimbals:
+            if g['id'] == gimbal_id:
+                g['connected'] = False
+                g['connecting'] = False
+                break
+        gimbal_states[gimbal_id]['connected'] = False
+
+    await sio.emit('gimbal:list', available_gimbals)
+
+
 @sio.on('gimbal:select')
 async def handle_select_gimbal(sid, gimbal_id):
-    global active_gimbal_id
+    global active_gimbal_id, gimbal_state
+
+    # Validate gimbal exists
+    gimbal_exists = any(g["id"] == gimbal_id for g in available_gimbals)
+    if not gimbal_exists:
+        print(f'Invalid gimbal ID: {gimbal_id}')
+        return
+
     print(f'Selected gimbal: {gimbal_id}')
     active_gimbal_id = gimbal_id
+
+    # Update gimbal_state reference to point to the selected gimbal's state
+    if gimbal_id in gimbal_states:
+        gimbal_state = gimbal_states[gimbal_id]
+
+    # Notify all clients of selection and new mode
     await sio.emit('gimbal:selected', gimbal_id)
+    await sio.emit('gimbal:status', {
+        "connected": gimbal_state["connected"],
+        "tracking": gimbal_state["tracking"],
+        "speedBoost": gimbal_state["speedBoost"],
+        "mode": get_active_mode(),
+    })
 
 
 # ============== Background Tasks ==============
@@ -573,8 +903,8 @@ async def position_broadcast_loop():
             position = get_gimbal_position()
             await sio.emit('gimbal:position', position)
 
-            # Simulate position changes based on speed (for virtual mode)
-            if virtual_mode:
+            # Simulate position changes based on speed (for virtual mode or when controlling virtual gimbal)
+            if not is_real_gimbal_active():
                 # Handle home animation - READ SPEED DYNAMICALLY each frame
                 if home_animation["active"]:
                     target = home_animation["target"]
@@ -641,8 +971,8 @@ async def telemetry_broadcast_loop():
                 "position": gimbal_state["position"].copy(),
                 "speed": gimbal_state["speed"].copy(),
                 # Only send real data - null for virtual mode (no fake data)
-                "temperature": None if virtual_mode else 35,
-                "batteryLevel": None if virtual_mode else 85,
+                "temperature": None if not is_real_gimbal_active() else 35,
+                "batteryLevel": None if not is_real_gimbal_active() else 85,
             }
             await sio.emit('gimbal:telemetry', telemetry)
         except Exception as e:
@@ -669,10 +999,13 @@ async def handle_gimbals(request):
 
 async def handle_health(request):
     """Health check endpoint."""
+    real_count = len(real_gimbals)
     return web.json_response({
         "status": "ok",
         "timestamp": int(time.time() * 1000),
-        "ztConnected": not virtual_mode,
+        "realGimbalsConnected": real_count,
+        "activeGimbalId": active_gimbal_id,
+        "activeMode": get_active_mode(),
     })
 
 
@@ -685,8 +1018,8 @@ async def on_startup(app):
 
 
 def init_zt_library(zt_path: str) -> bool:
-    """Initialize the ZT_Tracking library."""
-    global zt_wrapper, virtual_mode, available_gimbals, active_gimbal_id, gimbal_state
+    """Initialize the ZT_Tracking library and detect real gimbals."""
+    global zt_wrapper, available_gimbals, active_gimbal_id, gimbal_state
 
     try:
         zt_wrapper = ZTLibWrapper(zt_path)
@@ -706,27 +1039,35 @@ def init_zt_library(zt_path: str) -> bool:
 
             # Get gimbal info
             info = zt_wrapper.get_info()
+            gimbal_id = "gimbal-0"
             if info:
                 gimbal_info = {
-                    "id": "gimbal-0",
+                    "id": gimbal_id,
                     "name": info.get("name", "DJI Gimbal"),
                     "model": f"v{info.get('version', '?')}",
                     "connected": True,
-                    "ip": info.get("ip", "EthCAN")
+                    "ip": info.get("ip", "EthCAN"),
+                    "mode": "real"
                 }
             else:
                 gimbal_info = {
-                    "id": "gimbal-0",
+                    "id": gimbal_id,
                     "name": "DJI Gimbal",
                     "model": "DJI RS/Ronin",
                     "connected": True,
-                    "ip": "EthCAN"
+                    "ip": "EthCAN",
+                    "mode": "real"
                 }
 
+            # Create state for this real gimbal
+            real_state = create_gimbal_state()
+            real_state["connected"] = True
+            gimbal_states[gimbal_id] = real_state
+
+            # Store the wrapper for this gimbal
+            real_gimbals[gimbal_id] = zt_wrapper
+
             available_gimbals.append(gimbal_info)
-            active_gimbal_id = "gimbal-0"
-            gimbal_state["connected"] = True
-            virtual_mode = False
 
             print(f"Gimbal initialized: {gimbal_info}")
             return True
@@ -742,7 +1083,7 @@ def init_zt_library(zt_path: str) -> bool:
 
 
 def main():
-    global virtual_mode, active_gimbal_id
+    global active_gimbal_id, gimbal_state
 
     parser = argparse.ArgumentParser(description='ZAP Gimbal UI - ZT Bridge Server')
     parser.add_argument('--port', type=int, default=3001, help='Server port (default: 3001)')
@@ -751,6 +1092,23 @@ def main():
     parser.add_argument('--virtual', action='store_true',
                         help='Run in virtual/simulation mode without real gimbal')
     args = parser.parse_args()
+
+    # Always create the virtual gimbal first (it mirrors real gimbals when connected)
+    virtual_state = create_gimbal_state()
+    virtual_state["connected"] = True
+    gimbal_states[VIRTUAL_GIMBAL_ID] = virtual_state
+    available_gimbals.append({
+        "id": VIRTUAL_GIMBAL_ID,
+        "name": "Virtual Gimbal",
+        "model": "Mirror/Simulation",
+        "connected": True,
+        "ip": "127.0.0.1",
+        "mode": "virtual"
+    })
+    print("Virtual gimbal created (always available)")
+
+    # Load saved gimbal configurations
+    load_gimbal_config()
 
     # Try to find ZT_Tracking path
     zt_path = args.zt_path
@@ -766,34 +1124,28 @@ def main():
                 zt_path = os.path.abspath(path)
                 break
 
-    # Initialize ZT library (unless virtual mode)
+    # Initialize ZT library and detect real gimbals (unless virtual-only mode)
+    has_real_gimbals = False
     if not args.virtual and zt_path:
         if init_zt_library(zt_path):
-            print("ZT_Lib initialized successfully")
+            print("ZT_Lib initialized successfully - real gimbal(s) detected")
+            has_real_gimbals = True
         else:
-            print("Running in VIRTUAL MODE (no real gimbal)")
-            virtual_mode = True
-            available_gimbals.append({
-                "id": "gimbal-virtual",
-                "name": "Virtual Gimbal",
-                "model": "Simulation",
-                "connected": True,
-                "ip": "127.0.0.1"
-            })
-            active_gimbal_id = "gimbal-virtual"
-            gimbal_state["connected"] = True
+            print("No real gimbals found, using virtual gimbal only")
+
+    # Set initial active gimbal
+    if has_real_gimbals:
+        # Find first real gimbal and make it active
+        for g in available_gimbals:
+            if g["mode"] == "real":
+                active_gimbal_id = g["id"]
+                if active_gimbal_id in gimbal_states:
+                    gimbal_state = gimbal_states[active_gimbal_id]
+                break
     else:
-        print("Running in VIRTUAL MODE")
-        virtual_mode = True
-        available_gimbals.append({
-            "id": "gimbal-virtual",
-            "name": "Virtual Gimbal",
-            "model": "Simulation",
-            "connected": True,
-            "ip": "127.0.0.1"
-        })
-        active_gimbal_id = "gimbal-virtual"
-        gimbal_state["connected"] = True
+        # Default to virtual gimbal
+        active_gimbal_id = VIRTUAL_GIMBAL_ID
+        gimbal_state = gimbal_states[VIRTUAL_GIMBAL_ID]
 
     # Setup HTTP routes
     app.router.add_get('/api/status', handle_status)
@@ -804,12 +1156,14 @@ def main():
     app.on_startup.append(on_startup)
 
     # Print banner
-    mode = 'REAL GIMBAL (ZT_Lib)' if not virtual_mode else 'VIRTUAL/SIMULATION'
+    real_count = sum(1 for g in available_gimbals if g["mode"] == "real")
+    mode_str = f"VIRTUAL + {real_count} REAL GIMBAL(S)" if real_count > 0 else "VIRTUAL ONLY"
     print(f"""
   ╔════════════════════════════════════════════════════════╗
-  ║     ZAP Gimbal UI - ZT Bridge Server                   ║
+  ║     PAZ Gimbal Control - Bridge Server                 ║
   ║     Running on http://localhost:{args.port}                   ║
-  ║     Mode: {mode:<44} ║
+  ║     Mode: {mode_str:<44} ║
+  ║     Gimbals: {len(available_gimbals)} available                             ║
   ╚════════════════════════════════════════════════════════╝
     """)
 

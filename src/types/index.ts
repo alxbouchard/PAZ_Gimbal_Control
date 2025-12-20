@@ -17,7 +17,10 @@ export interface GimbalInfo {
   model: string;
   connected: boolean;
   ip?: string;
+  mode?: 'virtual' | 'real';
 }
+
+export type GimbalMode = 'virtual' | 'real' | 'unknown';
 
 export interface TelemetryData {
   timestamp: number;
@@ -51,6 +54,7 @@ export interface GimbalState {
   // Current gimbal
   activeGimbalId: string | null;
   availableGimbals: GimbalInfo[];
+  gimbalMode: GimbalMode;
 
   // Position & movement
   position: GimbalPosition;
@@ -83,6 +87,7 @@ export interface GimbalActions {
   // Gimbal selection
   setActiveGimbal: (id: string | null) => void;
   setAvailableGimbals: (gimbals: GimbalInfo[]) => void;
+  setGimbalMode: (mode: GimbalMode) => void;
 
   // Position & movement
   setPosition: (position: Partial<GimbalPosition>) => void;
@@ -111,7 +116,7 @@ export type GimbalStore = GimbalState & GimbalActions;
 // WebSocket event types
 export interface ServerToClientEvents {
   'gimbal:position': (position: GimbalPosition) => void;
-  'gimbal:status': (status: { connected: boolean; tracking: boolean; speedBoost: boolean }) => void;
+  'gimbal:status': (status: { connected: boolean; tracking: boolean; speedBoost: boolean; mode?: 'virtual' | 'real' }) => void;
   'gimbal:telemetry': (data: TelemetryData) => void;
   'gimbal:list': (gimbals: GimbalInfo[]) => void;
   'gimbal:selected': (gimbalId: string) => void;
@@ -130,6 +135,11 @@ export interface ClientToServerEvents {
   'gimbal:setFocus': (value: number) => void;
   'gimbal:calibrateFocus': () => void;
   'gimbal:select': (gimbalId: string) => void;
+  // Gimbal management
+  'gimbal:add': (config: { name: string; ip: string }) => void;
+  'gimbal:remove': (gimbalId: string) => void;
+  'gimbal:update': (config: { id: string; name?: string; ip?: string }) => void;
+  'gimbal:connect': (gimbalId: string) => void;
 }
 
 // Tab types

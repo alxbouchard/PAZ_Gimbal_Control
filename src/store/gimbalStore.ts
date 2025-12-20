@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GimbalStore, ControlMapping, GimbalPosition, GimbalSpeed, GimbalInfo, TelemetryData } from '../types';
+import type { GimbalStore, ControlMapping, GimbalPosition, GimbalSpeed, GimbalInfo, TelemetryData, GimbalMode } from '../types';
 
 const defaultControlMapping: ControlMapping = {
   joystickLeft: {
@@ -24,6 +24,7 @@ export const useGimbalStore = create<GimbalStore>((set, _get) => ({
   // Current gimbal
   activeGimbalId: null,
   availableGimbals: [],
+  gimbalMode: 'unknown' as GimbalMode,
 
   // Position & movement
   position: { pitch: 0, yaw: 0, roll: 0 },
@@ -52,6 +53,7 @@ export const useGimbalStore = create<GimbalStore>((set, _get) => ({
 
   setActiveGimbal: (activeGimbalId: string | null) => set({ activeGimbalId }),
   setAvailableGimbals: (availableGimbals: GimbalInfo[]) => set({ availableGimbals }),
+  setGimbalMode: (gimbalMode: GimbalMode) => set({ gimbalMode }),
 
   setPosition: (position: Partial<GimbalPosition>) =>
     set((state) => ({ position: { ...state.position, ...position } })),
