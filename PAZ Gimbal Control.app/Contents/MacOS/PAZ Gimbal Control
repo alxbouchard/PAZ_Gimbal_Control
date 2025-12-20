@@ -2,46 +2,70 @@
 # PAZ Gimbal Control - macOS Application Launcher
 
 PROJECT_DIR="/Users/alexmacbookair/Documents/Code/PAZ_Gimbal_Control"
-LOG_FILE="$PROJECT_DIR/.paz-gimbal.log"
-PID_FILE="$PROJECT_DIR/.paz-gimbal.pid"
 
-cd "$PROJECT_DIR"
+# Use osascript to run in Terminal with auto-close on exit
+osascript << 'EOF'
+tell application "Terminal"
+    activate
 
-# Cleanup function - kills servers when script exits
-cleanup() {
-    echo "Shutting down PAZ Gimbal Control..." >> "$LOG_FILE"
-    pkill -f 'zt_bridge.py' 2>/dev/null
-    pkill -f 'vite preview' 2>/dev/null
-    rm -f "$PID_FILE"
-    exit 0
-}
+    # Create a new terminal window with our script
+    set newTab to do script "
+        cd '/Users/alexmacbookair/Documents/Code/PAZ_Gimbal_Control'
 
-# Trap signals to run cleanup
-trap cleanup EXIT INT TERM
+        # Cleanup function
+        cleanup() {
+            echo ''
+            echo '🛑 Shutting down PAZ Gimbal Control...'
+            pkill -f 'zt_bridge.py' 2>/dev/null
+            pkill -f 'vite preview' 2>/dev/null
+            echo '✅ Servers stopped. Closing terminal...'
+            sleep 1
+            exit 0
+        }
 
-# Kill any existing processes
-pkill -f 'zt_bridge.py' 2>/dev/null
-pkill -f 'vite preview' 2>/dev/null
-sleep 1
+        # Trap Ctrl+C and exit
+        trap cleanup INT TERM EXIT
 
-# Start servers in background
-echo "$(date): Starting PAZ Gimbal Control..." > "$LOG_FILE"
-python3 server/zt_bridge.py --virtual >> "$LOG_FILE" 2>&1 &
-echo $! > "$PID_FILE"
-sleep 2
+        # Kill existing processes
+        pkill -f 'zt_bridge.py' 2>/dev/null
+        pkill -f 'vite preview' 2>/dev/null
+        sleep 1
 
-npm run preview >> "$LOG_FILE" 2>&1 &
-echo $! >> "$PID_FILE"
-sleep 3
+        echo '🚀 Starting PAZ Gimbal Control v1.2.0...'
+        echo ''
 
-# Open browser
-open http://localhost:4173
+        # Start Python server
+        echo '📡 Starting gimbal server...'
+        python3 server/zt_bridge.py --virtual &
+        SERVER_PID=$!
+        sleep 2
 
-# Show notification
-osascript -e 'display notification "Web UI available at http://localhost:4173" with title "PAZ Gimbal Control" subtitle "Servers started"'
+        # Start web server
+        echo '🌐 Starting web server...'
+        npm run preview &
+        WEB_PID=$!
+        sleep 3
 
-# Keep running until killed (Cmd+Q or closing app)
-# When the app is closed, macOS sends SIGTERM which triggers cleanup
-while true; do
-    sleep 60
-done
+        # Open browser
+        echo '🔗 Opening browser...'
+        open http://localhost:4173
+
+        echo ''
+        echo '═══════════════════════════════════════════════════'
+        echo '  ✅ PAZ Gimbal Control is running!'
+        echo '  🌐 Web UI: http://localhost:4173'
+        echo '  📡 Server: http://localhost:3001'
+        echo ''
+        echo '  Press Ctrl+C to stop and close this window'
+        echo '═══════════════════════════════════════════════════'
+        echo ''
+
+        # Wait for processes (keeps terminal alive)
+        wait
+    "
+
+    # Get the window ID for later closing
+    set windowID to id of front window
+
+end tell
+EOF
