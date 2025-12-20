@@ -1,0 +1,43 @@
+#!/bin/bash
+# PAZ Gimbal Control - macOS Application Launcher
+
+# Get the directory where the app bundle is located
+APP_DIR="$(dirname "$(dirname "$(dirname "$0")")")"
+PROJECT_DIR="$(dirname "$APP_DIR")"
+
+# Change to project directory
+cd "$PROJECT_DIR"
+
+# Kill any existing instances
+pkill -f "zt_bridge.py" 2>/dev/null
+pkill -f "vite preview" 2>/dev/null
+sleep 1
+
+# Build if dist doesn't exist or is outdated
+if [ ! -d "dist" ]; then
+    osascript -e 'display notification "Building application..." with title "PAZ Gimbal Control"'
+    npm run build
+fi
+
+# Start the gimbal server (virtual mode)
+python3 server/zt_bridge.py --virtual &
+SERVER_PID=$!
+
+# Wait for server to be ready
+sleep 2
+
+# Start the web server
+npm run preview &
+PREVIEW_PID=$!
+
+# Wait for preview server
+sleep 2
+
+# Open in default browser
+open http://localhost:4173
+
+# Show notification
+osascript -e 'display notification "Application started on http://localhost:4173" with title "PAZ Gimbal Control"'
+
+# Keep running until both processes exit
+wait $SERVER_PID $PREVIEW_PID
