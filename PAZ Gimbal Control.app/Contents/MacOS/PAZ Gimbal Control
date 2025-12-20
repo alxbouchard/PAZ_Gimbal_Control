@@ -1,43 +1,13 @@
 #!/bin/bash
 # PAZ Gimbal Control - macOS Application Launcher
 
-# Get the directory where the app bundle is located
-APP_DIR="$(dirname "$(dirname "$(dirname "$0")")")"
-PROJECT_DIR="$(dirname "$APP_DIR")"
+# Fixed project directory path
+PROJECT_DIR="/Users/alexmacbookair/Documents/Code/PAZ_Gimbal_Control"
 
-# Change to project directory
-cd "$PROJECT_DIR"
-
-# Kill any existing instances
-pkill -f "zt_bridge.py" 2>/dev/null
-pkill -f "vite preview" 2>/dev/null
-sleep 1
-
-# Build if dist doesn't exist or is outdated
-if [ ! -d "dist" ]; then
-    osascript -e 'display notification "Building application..." with title "PAZ Gimbal Control"'
-    npm run build
-fi
-
-# Start the gimbal server (virtual mode)
-python3 server/zt_bridge.py --virtual &
-SERVER_PID=$!
-
-# Wait for server to be ready
-sleep 2
-
-# Start the web server
-npm run preview &
-PREVIEW_PID=$!
-
-# Wait for preview server
-sleep 2
-
-# Open in default browser
-open http://localhost:4173
-
-# Show notification
-osascript -e 'display notification "Application started on http://localhost:4173" with title "PAZ Gimbal Control"'
-
-# Keep running until both processes exit
-wait $SERVER_PID $PREVIEW_PID
+# Use osascript to run in Terminal (bypasses sandbox restrictions)
+osascript << EOF
+tell application "Terminal"
+    activate
+    do script "cd '$PROJECT_DIR' && echo '🚀 Starting PAZ Gimbal Control...' && pkill -f 'zt_bridge.py' 2>/dev/null; pkill -f 'vite preview' 2>/dev/null; sleep 1 && echo '📡 Starting gimbal server...' && python3 server/zt_bridge.py --virtual & sleep 3 && echo '🌐 Starting web server...' && npm run preview & echo '⏳ Waiting for servers to start...' && sleep 5 && echo '🔗 Opening browser...' && open http://localhost:4173 && echo '' && echo '✅ PAZ Gimbal Control is running!' && echo '   Web UI: http://localhost:4173' && echo '   Press Ctrl+C to stop'"
+end tell
+EOF
