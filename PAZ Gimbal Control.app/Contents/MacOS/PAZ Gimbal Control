@@ -1,13 +1,47 @@
 #!/bin/bash
 # PAZ Gimbal Control - macOS Application Launcher
 
-# Fixed project directory path
 PROJECT_DIR="/Users/alexmacbookair/Documents/Code/PAZ_Gimbal_Control"
+LOG_FILE="$PROJECT_DIR/.paz-gimbal.log"
+PID_FILE="$PROJECT_DIR/.paz-gimbal.pid"
 
-# Use osascript to run in Terminal (bypasses sandbox restrictions)
-osascript << EOF
-tell application "Terminal"
-    activate
-    do script "cd '$PROJECT_DIR' && echo '🚀 Starting PAZ Gimbal Control...' && pkill -f 'zt_bridge.py' 2>/dev/null; pkill -f 'vite preview' 2>/dev/null; sleep 1 && echo '📡 Starting gimbal server...' && python3 server/zt_bridge.py --virtual & sleep 3 && echo '🌐 Starting web server...' && npm run preview & echo '⏳ Waiting for servers to start...' && sleep 5 && echo '🔗 Opening browser...' && open http://localhost:4173 && echo '' && echo '✅ PAZ Gimbal Control is running!' && echo '   Web UI: http://localhost:4173' && echo '   Press Ctrl+C to stop'"
-end tell
-EOF
+cd "$PROJECT_DIR"
+
+# Cleanup function - kills servers when script exits
+cleanup() {
+    echo "Shutting down PAZ Gimbal Control..." >> "$LOG_FILE"
+    pkill -f 'zt_bridge.py' 2>/dev/null
+    pkill -f 'vite preview' 2>/dev/null
+    rm -f "$PID_FILE"
+    exit 0
+}
+
+# Trap signals to run cleanup
+trap cleanup EXIT INT TERM
+
+# Kill any existing processes
+pkill -f 'zt_bridge.py' 2>/dev/null
+pkill -f 'vite preview' 2>/dev/null
+sleep 1
+
+# Start servers in background
+echo "$(date): Starting PAZ Gimbal Control..." > "$LOG_FILE"
+python3 server/zt_bridge.py --virtual >> "$LOG_FILE" 2>&1 &
+echo $! > "$PID_FILE"
+sleep 2
+
+npm run preview >> "$LOG_FILE" 2>&1 &
+echo $! >> "$PID_FILE"
+sleep 3
+
+# Open browser
+open http://localhost:4173
+
+# Show notification
+osascript -e 'display notification "Web UI available at http://localhost:4173" with title "PAZ Gimbal Control" subtitle "Servers started"'
+
+# Keep running until killed (Cmd+Q or closing app)
+# When the app is closed, macOS sends SIGTERM which triggers cleanup
+while true; do
+    sleep 60
+done
