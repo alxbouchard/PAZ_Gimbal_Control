@@ -2,15 +2,21 @@
 
 Professional web-based control interface for DJI Ronin RS gimbals with ZAP Tracking system integration.
 
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Platform](https://img.shields.io/badge/platform-macOS%20ARM64-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 ## Features
 
+- **Multi-Gimbal Support** - Control multiple DJI gimbals with instant switching (1, 2, 3, 4...)
 - **3D Virtual Gimbal Visualization** - Real-time 3D model replicating DJI Ronin RS behavior
 - **Dual Joystick Controls** - Touch and mouse-friendly virtual joysticks
 - **Virtual Gimbal Mode** - Test and demo without physical hardware
 - **Real-time Telemetry** - Position graphs and statistics
-- **Gamepad Support** - Xbox controller compatible
+- **Xbox Gamepad Support** - Full button and axis mapping configuration
 - **Keyboard Shortcuts** - Fully customizable keyboard controls
 - **DJI Ronin RS Specs** - Accurate 360 deg/s speed limits, mechanical limits, continuous pan rotation
+- **Gimbal Manager** - Add, edit, and remove gimbals via EthCAN IP addresses
 
 ## Quick Start
 
@@ -99,6 +105,10 @@ PAZ_Gimbal_Control/
 | B Button | Go Home |
 | X Button | Set Home |
 | Y Button | Speed Boost |
+| LB/RB | Previous/Next Gimbal |
+| LT/RT | Zoom In/Out |
+
+All gamepad mappings can be customized in Settings > Xbox Gamepad.
 
 ## DJI Ronin RS Specifications
 
