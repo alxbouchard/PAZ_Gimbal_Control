@@ -18,6 +18,7 @@ export interface GimbalInfo {
   connected: boolean;
   ip?: string;
   mode?: 'virtual' | 'real';
+  controlledBy?: string | null;  // Name of user controlling this gimbal
 }
 
 export type GimbalMode = 'virtual' | 'real' | 'unknown';

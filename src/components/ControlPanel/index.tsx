@@ -192,12 +192,14 @@ function GimbalSwitcher() {
           const isActive = gimbal.id === activeGimbalId;
           const isVirtual = gimbal.mode === 'virtual';
           const isConnected = gimbal.connected;
+          const controlledBy = gimbal.controlledBy;
+          const hasController = controlledBy && !isVirtual;
 
           return (
             <motion.button
               key={gimbal.id}
               onClick={() => handleSelectGimbal(gimbal.id)}
-              className={`relative flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+              className={`relative flex flex-col items-start gap-0.5 px-3 py-2 rounded-lg border-2 transition-all ${
                 isActive
                   ? isVirtual
                     ? 'bg-blue-500/20 border-blue-500 text-blue-400'
@@ -210,17 +212,24 @@ function GimbalSwitcher() {
               whileTap={{ scale: isConnected || isVirtual ? 0.98 : 1 }}
               disabled={!isConnected && !isVirtual}
             >
-              {isVirtual ? (
-                <Monitor size={14} />
-              ) : (
-                <Radio size={14} />
+              <div className="flex items-center gap-2">
+                {isVirtual ? (
+                  <Monitor size={14} />
+                ) : (
+                  <Radio size={14} />
+                )}
+                <span className="text-sm font-medium">
+                  {index + 1}
+                </span>
+                <span className="text-xs truncate max-w-[80px]">
+                  {gimbal.name}
+                </span>
+              </div>
+              {hasController && (
+                <span className={`text-[10px] ${isActive ? 'text-purple-300' : 'text-green-400'} font-medium`}>
+                  {controlledBy}
+                </span>
               )}
-              <span className="text-sm font-medium">
-                {index + 1}
-              </span>
-              <span className="text-xs truncate max-w-[80px]">
-                {gimbal.name}
-              </span>
               {isActive && (
                 <motion.div
                   className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${

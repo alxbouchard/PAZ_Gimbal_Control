@@ -98,6 +98,57 @@ current_speed_multiplier = 1.0  # Global speed multiplier (0.1 to 2.0)
 # Virtual gimbal always exists and mirrors the active real gimbal
 VIRTUAL_GIMBAL_ID = "gimbal-virtual"
 
+# ============== Multi-User Sessions ==============
+# Each client has their own session with their active gimbal
+client_sessions: Dict[str, Dict[str, Any]] = {}
+# Track which client controls which gimbal (gimbal_id -> sid)
+gimbal_controllers: Dict[str, str] = {}
+# Client counter for user-friendly names
+client_counter = 0
+
+
+def get_client_session(sid: str) -> Dict[str, Any]:
+    """Get or create a session for a client."""
+    if sid not in client_sessions:
+        global client_counter
+        client_counter += 1
+        client_sessions[sid] = {
+            "active_gimbal_id": VIRTUAL_GIMBAL_ID,
+            "name": f"User {client_counter}",
+            "speed_multiplier": 1.0,
+        }
+    return client_sessions[sid]
+
+
+def get_client_active_gimbal(sid: str) -> str:
+    """Get the active gimbal ID for a specific client."""
+    session = get_client_session(sid)
+    return session.get("active_gimbal_id", VIRTUAL_GIMBAL_ID)
+
+
+def get_client_name(sid: str) -> str:
+    """Get the display name for a client."""
+    session = get_client_session(sid)
+    return session.get("name", f"User-{sid[:6]}")
+
+
+def get_gimbal_controller(gimbal_id: str) -> Optional[str]:
+    """Get the name of the client controlling a gimbal, or None."""
+    controller_sid = gimbal_controllers.get(gimbal_id)
+    if controller_sid and controller_sid in client_sessions:
+        return get_client_name(controller_sid)
+    return None
+
+
+def get_gimbals_with_controllers() -> List[Dict[str, Any]]:
+    """Get gimbal list with controller info added."""
+    result = []
+    for g in available_gimbals:
+        gimbal_data = g.copy()
+        gimbal_data["controlledBy"] = get_gimbal_controller(g["id"])
+        result.append(gimbal_data)
+    return result
+
 
 def get_active_state() -> Dict[str, Any]:
     """Get the state of the currently active gimbal."""
@@ -565,12 +616,20 @@ sio.attach(app)
 
 @sio.event
 async def connect(sid, environ):
-    print(f'Client connected: {sid}')
+    # Create session for this client
+    session = get_client_session(sid)
+    client_name = get_client_name(sid)
+    print(f'Client connected: {client_name} ({sid})')
 
-    # Send initial state
-    await sio.emit('gimbal:list', available_gimbals, room=sid)
-    if active_gimbal_id:
-        await sio.emit('gimbal:selected', active_gimbal_id, room=sid)
+    # Send initial state with controller info
+    await sio.emit('gimbal:list', get_gimbals_with_controllers(), room=sid)
+
+    # Send this client's active gimbal (defaults to virtual)
+    client_gimbal = get_client_active_gimbal(sid)
+    await sio.emit('gimbal:selected', client_gimbal, room=sid)
+
+    # Send client's own name so they know who they are
+    await sio.emit('client:identity', {"name": client_name, "sid": sid}, room=sid)
 
     await sio.emit('gimbal:position', gimbal_state["position"], room=sid)
     await sio.emit('gimbal:status', {
@@ -583,7 +642,24 @@ async def connect(sid, environ):
 
 @sio.event
 async def disconnect(sid):
-    print(f'Client disconnected: {sid}')
+    client_name = get_client_name(sid) if sid in client_sessions else f"Unknown ({sid})"
+    print(f'Client disconnected: {client_name}')
+
+    # Release any gimbals this client was controlling
+    gimbals_released = []
+    for gimbal_id, controller_sid in list(gimbal_controllers.items()):
+        if controller_sid == sid:
+            del gimbal_controllers[gimbal_id]
+            gimbals_released.append(gimbal_id)
+
+    # Clean up session
+    if sid in client_sessions:
+        del client_sessions[sid]
+
+    # Notify all clients of updated gimbal list (controller info changed)
+    if gimbals_released:
+        await sio.emit('gimbal:list', get_gimbals_with_controllers())
+
     print('')
     print('╔═══════════════════════════════════════════════════════════════╗')
     print('║                                                               ║')
@@ -651,6 +727,23 @@ async def handle_toggle_speed_boost(sid, enabled):
     })
 
 
+@sio.on('client:setName')
+async def handle_set_name(sid, name):
+    """Allow client to change their display name."""
+    session = get_client_session(sid)
+    old_name = session.get("name", "Unknown")
+    # Sanitize name
+    name = str(name).strip()[:20] if name else f"User-{sid[:6]}"
+    session["name"] = name
+    print(f'Client renamed: {old_name} -> {name}')
+
+    # Notify this client of their new identity
+    await sio.emit('client:identity', {"name": name, "sid": sid}, room=sid)
+
+    # Update all clients with new controller info
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
+
+
 @sio.on('gimbal:setZoom')
 async def handle_set_zoom(sid, value):
     global gimbal_state
@@ -712,7 +805,7 @@ async def handle_add_gimbal(sid, gimbal_config):
     print(f'Added gimbal: {name} at {ip}')
 
     # Notify all clients
-    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
     await sio.emit('gimbal:added', gimbal_info)
 
     # Try to connect to the gimbal
@@ -765,7 +858,7 @@ async def handle_remove_gimbal(sid, gimbal_id):
     print(f'Removed gimbal: {gimbal_id}')
 
     # Notify all clients
-    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
     await sio.emit('gimbal:removed', gimbal_id)
 
 
@@ -792,7 +885,7 @@ async def handle_update_gimbal(sid, gimbal_config):
             break
 
     save_gimbal_config()
-    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
 
 
 @sio.on('gimbal:connect')
@@ -815,7 +908,7 @@ async def try_connect_gimbal(gimbal_id: str, ip: str):
         if g['id'] == gimbal_id:
             g['connecting'] = True
             break
-    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
 
     try:
         # Try to find ZT library path
@@ -869,7 +962,7 @@ async def try_connect_gimbal(gimbal_id: str, ip: str):
                 break
         gimbal_states[gimbal_id]['connected'] = False
 
-    await sio.emit('gimbal:list', available_gimbals)
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
 
 
 @sio.on('gimbal:select')
@@ -882,21 +975,40 @@ async def handle_select_gimbal(sid, gimbal_id):
         print(f'Invalid gimbal ID: {gimbal_id}')
         return
 
-    print(f'Selected gimbal: {gimbal_id}')
-    active_gimbal_id = gimbal_id
+    client_name = get_client_name(sid)
+    session = get_client_session(sid)
 
-    # Update gimbal_state reference to point to the selected gimbal's state
+    # Release any gimbal this client was previously controlling
+    old_gimbal = session.get("active_gimbal_id")
+    if old_gimbal and old_gimbal in gimbal_controllers:
+        if gimbal_controllers[old_gimbal] == sid:
+            del gimbal_controllers[old_gimbal]
+
+    # Update client's session
+    session["active_gimbal_id"] = gimbal_id
+
+    # Mark this client as controller (for real gimbals, not virtual)
+    if gimbal_id != VIRTUAL_GIMBAL_ID:
+        gimbal_controllers[gimbal_id] = sid
+
+    print(f'{client_name} selected gimbal: {gimbal_id}')
+
+    # Update legacy global state (for backward compatibility with position updates)
+    active_gimbal_id = gimbal_id
     if gimbal_id in gimbal_states:
         gimbal_state = gimbal_states[gimbal_id]
 
-    # Notify all clients of selection and new mode
-    await sio.emit('gimbal:selected', gimbal_id)
+    # Notify THIS client of their selection
+    await sio.emit('gimbal:selected', gimbal_id, room=sid)
     await sio.emit('gimbal:status', {
         "connected": gimbal_state["connected"],
         "tracking": gimbal_state["tracking"],
         "speedBoost": gimbal_state["speedBoost"],
         "mode": get_active_mode(),
-    })
+    }, room=sid)
+
+    # Notify ALL clients of updated controller info
+    await sio.emit('gimbal:list', get_gimbals_with_controllers())
 
 
 # ============== Background Tasks ==============
