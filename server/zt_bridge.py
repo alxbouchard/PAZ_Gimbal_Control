@@ -584,6 +584,13 @@ async def connect(sid, environ):
 @sio.event
 async def disconnect(sid):
     print(f'Client disconnected: {sid}')
+    print('')
+    print('╔═══════════════════════════════════════════════════════════════╗')
+    print('║                                                               ║')
+    print('║   ⚠️   TO STOP: Press Ctrl+C or close this window            ║')
+    print('║                                                               ║')
+    print('╚═══════════════════════════════════════════════════════════════╝')
+    print('')
 
 
 @sio.on('gimbal:setSpeed')
