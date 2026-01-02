@@ -70,3 +70,9 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Electron Builder / Packaging
+release/
+PAZ_Gimbal_Portable/
+PAZ_Gimbal_Control_Mac.zip
+PAZ Gimbal Control.app/Contents/Resources/app/

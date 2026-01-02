@@ -3,6 +3,47 @@
   "version": "1.2.0",
   "description": "PAZ Gimbal Control - Professional gimbal control interface",
   "type": "module",
+  "main": "electron/main.js",
+  "author": "PAZ Gimbal",
+  "build": {
+    "appId": "com.paz.gimbal.control",
+    "productName": "PAZ Gimbal Control",
+    "mac": {
+      "category": "public.app-category.video",
+      "target": [
+        "dmg"
+      ],
+      "hardenedRuntime": false
+    },
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "server",
+        "to": "server",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "libs",
+        "to": "libs",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "libs/**/*"
+    ]
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -13,7 +54,9 @@
     "virtual": "concurrently \"npm run dev\" \"npm run server:virtual\"",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "electron:dev": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder build --mac"
   },
   "dependencies": {
     "@react-three/drei": "^9.88.0",
@@ -36,6 +79,8 @@
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.0",
     "cors": "^2.8.5",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
     "express": "^4.18.0",
     "postcss": "^8.4.31",
     "socket.io": "^4.7.0",

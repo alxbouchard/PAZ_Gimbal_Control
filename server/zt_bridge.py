@@ -1271,6 +1271,33 @@ def main():
     app.router.add_get('/api/gimbals', handle_gimbals)
     app.router.add_get('/health', handle_health)
 
+    # Setup Frontend Serving (Static Files)
+    # Search for dist folder in likely locations
+    possible_dist_paths = [
+        os.path.join(os.path.dirname(__file__), 'dist'),      # Portable mode (server/dist)
+        os.path.join(os.path.dirname(__file__), '..', 'dist') # Dev mode (root/dist)
+    ]
+    
+    dist_path = None
+    for path in possible_dist_paths:
+        if os.path.exists(path) and os.path.isdir(path):
+            dist_path = os.path.abspath(path)
+            break
+            
+    if dist_path:
+        print(f"Serving frontend from: {dist_path}")
+        
+        # Serve index.html for root path
+        async def handle_index(request):
+            return web.FileResponse(os.path.join(dist_path, 'index.html'))
+        app.router.add_get('/', handle_index)
+        
+        # Serve static assets
+        # Note: We put this AFTER API routes so API takes precedence
+        app.router.add_static('/', dist_path, name='static')
+    else:
+        print("WARNING: Frontend 'dist' folder not found. API only mode.")
+
     # Setup startup handler
     app.on_startup.append(on_startup)
 

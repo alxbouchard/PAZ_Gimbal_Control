@@ -1,8 +1,36 @@
 #!/bin/bash
-# PAZ Gimbal Control - macOS Application Launcher
+# PAZ Gimbal Control - Portable Launcher
 
-# Run the start script in Terminal
-osascript -e 'tell application "Terminal"
-    activate
-    do script "/Users/alexmacbookair/Documents/Code/PAZ_Gimbal_Control/scripts/start.sh"
-end tell'
+# Get the directory where this script is located (Contents/MacOS)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Calculate path to the embedded app (Contents/Resources/app)
+APP_DIR="$DIR/../Resources/app"
+cd "$APP_DIR"
+
+# Dependencies
+# We use system python. If specific modules are missing, we try to install them silently to user scope 
+# (not ideal for strict sandboxing but functional for "sharing scripts")
+# Or we just assume they are there. Given the requirements are simple (aiohttp, python-socketio), 
+# we'll try a quick check.
+
+# Set PYTHONPATH to include our local libs if needed, though they are usually binaries.
+# If you bunded python env, you'd point to it here.
+
+# Start Server in background and capture PID
+# We assume system python3 is available
+echo "Starting internal server..."
+python3 server/zt_bridge.py &
+SERVER_PID=$!
+
+# Wait a moment for server to start
+sleep 2
+
+# Open Browser
+open "http://localhost:3001"
+
+# Wait for server process (keeps the app "running" in dock somewhat)
+# Or just exit and let the server run? 
+# If we exit, the server might be orphaned or killed depending on launch context.
+# Usually MacOS apps stay open.
+wait $SERVER_PID
