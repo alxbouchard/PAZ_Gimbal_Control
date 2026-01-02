@@ -1,9 +1,9 @@
 {
   "name": "paz-gimbal-control",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "PAZ Gimbal Control - Professional gimbal control interface",
   "type": "module",
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "author": "PAZ Gimbal",
   "build": {
     "appId": "com.paz.gimbal.control",
@@ -21,28 +21,11 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "server/**/*",
+      "libs/**/*",
       "package.json"
     ],
-    "extraResources": [
-      {
-        "from": "server",
-        "to": "server",
-        "filter": [
-          "**/*"
-        ]
-      },
-      {
-        "from": "libs",
-        "to": "libs",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
-    "asar": true,
-    "asarUnpack": [
-      "libs/**/*"
-    ]
+    "asar": false
   },
   "scripts": {
     "dev": "vite",

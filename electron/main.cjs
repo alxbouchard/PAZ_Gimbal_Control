@@ -20,14 +20,43 @@ function log(msg) {
     console.log(`[Electron]: ${msg}`);
 }
 
-function startPythonServer() {
-    log(`Starting Python server from: ${scriptPath}`);
+const fs = require('fs');
 
-    // Use system python3. In a fully frozen app we might include a python runtime,
-    // but for this hybrid approach we assume python3 is available on the Mac.
-    pythonProcess = spawn('python3', [scriptPath], {
-        cwd: projectRoot, // Set CWD so python finds libs/ relative to itself
-        stdio: ['ignore', 'pipe', 'pipe'] // Pipe stdout/stderr
+function getPythonPath() {
+    const possiblePaths = [
+        'python3', // In PATH (works in dev/CLI)
+        '/opt/homebrew/bin/python3', // Apple Silicon Homebrew
+        '/usr/local/bin/python3',    // Intel Homebrew
+        '/usr/bin/python3',          // System (might be a stub)
+        '/Library/Frameworks/Python.framework/Versions/Current/bin/python3'
+    ];
+
+    for (const p of possiblePaths) {
+        if (p === 'python3') continue; // Skip checking file existence for PATH command
+        if (fs.existsSync(p)) {
+            return p;
+        }
+    }
+    // Fallback to 'python3' and hope for the best if explicit paths fail
+    return 'python3';
+}
+
+function startPythonServer() {
+    const pythonExe = getPythonPath();
+    log(`Starting Python server from: ${scriptPath}`);
+    log(`Using Python interpreter: ${pythonExe}`);
+
+    // Explicitly set PATH for the child process to include common locations
+    // This helps if we use 'python3' but the env is stripped
+    const env = { ...process.env };
+    env.PATH = `${env.PATH}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin`;
+
+    const ztPath = path.join(projectRoot, 'libs', 'ZAP_Tracking');
+
+    pythonProcess = spawn(pythonExe, [scriptPath, '--zt-path', ztPath], {
+        cwd: projectRoot,
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: env
     });
 
     if (pythonProcess.pid) {

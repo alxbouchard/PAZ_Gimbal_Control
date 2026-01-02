@@ -68,8 +68,11 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="h-full flex flex-col bg-gimbal-bg">
       {/* Header */}
-      <header className="flex-shrink-0 border-b border-gimbal-border bg-gimbal-panel">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header
+        className="flex-shrink-0 border-b border-gimbal-border bg-gimbal-panel"
+        style={{ WebkitAppRegion: 'drag' } as any}
+      >
+        <div className="flex items-center justify-between px-4 py-3 pl-24">
           {/* Logo & Title */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gimbal-accent to-blue-600 flex items-center justify-center">
@@ -84,7 +87,10 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
 
           {/* Status indicators */}
-          <div className="flex items-center gap-4">
+          <div
+            className="flex items-center gap-4"
+            style={{ WebkitAppRegion: 'no-drag' } as any}
+          >
             {/* Position display */}
             <div className="hidden md:flex items-center gap-4 text-xs font-mono text-gimbal-text-dim">
               <span>P: {position.pitch.toFixed(1)}°</span>
@@ -99,11 +105,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setGimbalDropdownOpen(!gimbalDropdownOpen)}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs cursor-pointer transition-colors ${
-                      gimbalMode === 'virtual'
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs cursor-pointer transition-colors ${gimbalMode === 'virtual'
                         ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
                         : 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                    }`}
+                      }`}
                   >
                     {gimbalMode === 'virtual' ? <Monitor size={12} /> : <Radio size={12} />}
                     <span className="max-w-[100px] truncate">
@@ -123,11 +128,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                           <button
                             key={gimbal.id}
                             onClick={() => handleGimbalSelect(gimbal.id)}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
-                              gimbal.id === activeGimbalId
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${gimbal.id === activeGimbalId
                                 ? 'bg-gimbal-accent/20 text-gimbal-accent'
                                 : 'text-gimbal-text hover:bg-gimbal-border/50'
-                            }`}
+                              }`}
                           >
                             {gimbal.mode === 'virtual' ? (
                               <Monitor size={14} className="text-blue-400" />
@@ -163,11 +167,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                 </div>
               )}
               <div
-                className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                  connected
+                className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${connected
                     ? 'bg-gimbal-success/20 text-gimbal-success'
                     : 'bg-gimbal-error/20 text-gimbal-error'
-                }`}
+                  }`}
               >
                 {connected ? <Wifi size={12} /> : <WifiOff size={12} />}
                 <span>{connected ? 'Connected' : 'Disconnected'}</span>
@@ -177,16 +180,18 @@ export function MainLayout({ children }: MainLayoutProps) {
         </div>
 
         {/* Tabs */}
-        <nav className="flex gap-1 px-4 pb-2">
+        <nav
+          className="flex gap-1 px-4 pb-2"
+          style={{ WebkitAppRegion: 'no-drag' } as any}
+        >
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab.id
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
                   ? 'text-gimbal-accent bg-gimbal-accent/10'
                   : 'text-gimbal-text-dim hover:text-gimbal-text hover:bg-gimbal-border/50'
-              }`}
+                }`}
             >
               {tab.icon}
               <span className="hidden sm:inline">{tab.label}</span>

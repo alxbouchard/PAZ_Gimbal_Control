@@ -1274,8 +1274,10 @@ def main():
     # Setup Frontend Serving (Static Files)
     # Search for dist folder in likely locations
     possible_dist_paths = [
-        os.path.join(os.path.dirname(__file__), 'dist'),      # Portable mode (server/dist)
-        os.path.join(os.path.dirname(__file__), '..', 'dist') # Dev mode (root/dist)
+        os.path.join(os.path.dirname(__file__), 'dist'),      # Portable mode (server/dist) or local Dev
+        os.path.join(os.path.dirname(__file__), '..', 'dist'), # Dev mode (root/dist)
+        os.path.join(os.path.dirname(__file__), '..', 'app', 'dist'), # Electron packaged (Resources/server -> Resources/app/dist)
+        os.path.join(os.path.dirname(__file__), '..', 'Resources', 'app', 'dist') # Fallback
     ]
     
     dist_path = None
@@ -1297,6 +1299,25 @@ def main():
         app.router.add_static('/', dist_path, name='static')
     else:
         print("WARNING: Frontend 'dist' folder not found. API only mode.")
+        
+        # Serve Debug Info instead of 404
+        async def handle_debug(request):
+            debug_info = [
+                "<h1>PAZ Gimbal Control - Debug Mode</h1>",
+                "<p><strong>Error:</strong> Frontend 'dist' folder not found.</p>",
+                "<h2>Debug Info:</h2>",
+                f"<ul><li><strong>Current Working Directory:</strong> {os.getcwd()}</li>",
+                f"<li><strong>Server Script Location:</strong> {os.path.abspath(__file__)}</li></ul>",
+                "<h2>Checked Paths:</h2><ul>"
+            ]
+            for p in possible_dist_paths:
+                exists = "✅ Found" if os.path.exists(p) else "❌ Not Found"
+                debug_info.append(f"<li>{p}: {exists}</li>")
+            debug_info.append("</ul>")
+            
+            return web.Response(text="".join(debug_info), content_type='text/html')
+            
+        app.router.add_get('/', handle_debug)
 
     # Setup startup handler
     app.on_startup.append(on_startup)

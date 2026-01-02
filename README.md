@@ -20,43 +20,33 @@ Professional web-based control interface for DJI Ronin RS gimbals with ZAP Track
 
 ## Quick Start
 
-### Prerequisites
+### Installation (Zero Setup)
 
-- Node.js 18+
-- Python 3.8+
-- npm
+**Requirement:** macOS with Apple Silicon (M1, M2, M3+).
 
-### Installation (One Command)
+1.  Download the latest `.dmg` from the [Releases Page](https://github.com/alxbouchard/PAZ_Gimbal_Control/releases).
+2.  Open the file and drag **PAZ Gimbal Control** to your Applications folder.
+3.  Launch the app.
+
+> **Note:** Just right-click > Open the first time if macOS warns about the developer identity.
+
+That's it! No Python or Node.js installation required.
+
+### Manual Installation (For Developers)
+
+If you want to modify the code:
 
 ```bash
 # Clone the repository
 git clone https://github.com/alxbouchard/PAZ_Gimbal_Control.git
 cd PAZ_Gimbal_Control
 
-# Run the setup script
+# Run the setup script (installs Python/Node dependencies)
 ./setup.sh
+
+# Run in Dev Mode
+npm run electron:dev
 ```
-
-The setup script will:
-1. Install Node.js dependencies
-2. Install Python dependencies
-3. Build native libraries (KMSbase + ZAP_Tracking)
-4. Verify the installation
-
-### Running the Application
-
-```bash
-# Start with hardware (requires ZT_Agent)
-npm start
-
-# Start in virtual mode (no hardware required)
-npm run virtual
-
-# Development mode (frontend only)
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`
 
 ## Project Structure
 
