@@ -219,7 +219,7 @@ export function ConnectionModeSelector() {
 
         {/* Version */}
         <p className="text-center text-gimbal-muted text-xs mt-8">
-          v1.2.1
+          v1.3.0
         </p>
       </motion.div>
     </div>
