@@ -1,6 +1,6 @@
 # PAZ Gimbal Control
 
-Professional web-based control interface for DJI Ronin RS gimbals with ZAP Tracking system integration.
+Professional multi-user control interface for DJI Ronin RS gimbals with ZAP Tracking system integration.
 
 ![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![Platform](https://img.shields.io/badge/platform-macOS%20ARM64-lightgrey)
