@@ -1,8 +1,13 @@
 import { io, Socket } from 'socket.io-client';
 import { useGimbalStore } from '../store/gimbalStore';
-import type { GimbalSpeed, ServerToClientEvents, ClientToServerEvents } from '../types';
+import type { GimbalSpeed, ServerToClientEvents, ClientToServerEvents, ClientIdentity } from '../types';
 
-type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+// Extended events to include client identity
+interface ExtendedServerToClientEvents extends ServerToClientEvents {
+  'client:identity': (identity: ClientIdentity) => void;
+}
+
+type TypedSocket = Socket<ExtendedServerToClientEvents, ClientToServerEvents>;
 
 class GimbalSocketService {
   private socket: TypedSocket | null = null;
@@ -76,6 +81,12 @@ class GimbalSocketService {
 
         this.socket.on('error', (message) => {
           console.error('Gimbal error:', message);
+        });
+
+        // Listen for client identity
+        this.socket.on('client:identity', (identity) => {
+          console.log('Client identity:', identity);
+          store.setClientIdentity(identity);
         });
 
       } catch (error) {

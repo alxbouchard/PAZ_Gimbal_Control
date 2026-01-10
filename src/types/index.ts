@@ -51,6 +51,8 @@ export interface GimbalState {
   connected: boolean;
   connecting: boolean;
   serverUrl: string;
+  connectionMode: ConnectionMode;
+  clientIdentity: ClientIdentity | null;
 
   // Current gimbal
   activeGimbalId: string | null;
@@ -84,6 +86,8 @@ export interface GimbalActions {
   setConnected: (connected: boolean) => void;
   setConnecting: (connecting: boolean) => void;
   setServerUrl: (url: string) => void;
+  setConnectionMode: (mode: ConnectionMode) => void;
+  setClientIdentity: (identity: ClientIdentity | null) => void;
 
   // Gimbal selection
   setActiveGimbal: (id: string | null) => void;
@@ -141,6 +145,14 @@ export interface ClientToServerEvents {
   'gimbal:remove': (gimbalId: string) => void;
   'gimbal:update': (config: { id: string; name?: string; ip?: string }) => void;
   'gimbal:connect': (gimbalId: string) => void;
+}
+
+// Connection mode types
+export type ConnectionMode = 'master' | 'client' | null;
+
+export interface ClientIdentity {
+  name: string;
+  sid: string;
 }
 
 // Tab types

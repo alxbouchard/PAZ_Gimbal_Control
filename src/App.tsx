@@ -7,6 +7,7 @@ import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/pages/SettingsPage';
 import { ShortcutsPage } from './components/pages/ShortcutsPage';
 import { AboutPage } from './components/pages/AboutPage';
+import { ConnectionModeSelector } from './components/ConnectionModeSelector';
 import { useKeyboardControls } from './hooks/useKeyboardControls';
 import { useGamepad } from './hooks/useGamepad';
 import { gimbalSocket } from './services/websocket';
@@ -56,7 +57,7 @@ function AppContent({ activeTab }: { activeTab: TabId }) {
   );
 }
 
-function App() {
+function MainApp() {
   const { setConnecting } = useGimbalStore();
 
   // Initialize keyboard controls
@@ -89,6 +90,17 @@ function App() {
       {(activeTab) => <AppContent activeTab={activeTab} />}
     </MainLayout>
   );
+}
+
+function App() {
+  const { connectionMode } = useGimbalStore();
+
+  // Show mode selector if no mode selected
+  if (!connectionMode) {
+    return <ConnectionModeSelector />;
+  }
+
+  return <MainApp />;
 }
 
 export default App;

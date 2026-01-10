@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const http = require('http');
@@ -42,42 +42,77 @@ function getPythonPath() {
 }
 
 function startPythonServer() {
-    const pythonExe = getPythonPath();
-    log(`Starting Python server from: ${scriptPath}`);
-    log(`Using Python interpreter: ${pythonExe}`);
-
-    // Explicitly set PATH for the child process to include common locations
-    // This helps if we use 'python3' but the env is stripped
-    const env = { ...process.env };
-    env.PATH = `${env.PATH}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin`;
-
-    const ztPath = path.join(projectRoot, 'libs', 'ZAP_Tracking');
-
-    pythonProcess = spawn(pythonExe, [scriptPath, '--zt-path', ztPath], {
-        cwd: projectRoot,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: env
-    });
-
-    if (pythonProcess.pid) {
-        log(`Python process started (PID: ${pythonProcess.pid})`);
-    } else {
-        log('Failed to start Python process');
+    if (pythonProcess) {
+        log('Python server already running');
+        return Promise.resolve(true);
     }
 
-    pythonProcess.stdout.on('data', (data) => {
-        console.log(`[Python]: ${data}`);
-    });
+    return new Promise((resolve) => {
+        const pythonExe = getPythonPath();
+        log(`Starting Python server from: ${scriptPath}`);
+        log(`Using Python interpreter: ${pythonExe}`);
 
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`[Python ERROR]: ${data}`);
-    });
+        // Explicitly set PATH for the child process to include common locations
+        const env = { ...process.env };
+        env.PATH = `${env.PATH}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin`;
 
-    pythonProcess.on('close', (code) => {
-        log(`Python process exited with code ${code}`);
-        pythonProcess = null;
+        const ztPath = path.join(projectRoot, 'libs', 'ZAP_Tracking');
+
+        pythonProcess = spawn(pythonExe, [scriptPath, '--zt-path', ztPath], {
+            cwd: projectRoot,
+            stdio: ['ignore', 'pipe', 'pipe'],
+            env: env
+        });
+
+        if (pythonProcess.pid) {
+            log(`Python process started (PID: ${pythonProcess.pid})`);
+        } else {
+            log('Failed to start Python process');
+            resolve(false);
+            return;
+        }
+
+        pythonProcess.stdout.on('data', (data) => {
+            console.log(`[Python]: ${data}`);
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+            console.error(`[Python ERROR]: ${data}`);
+        });
+
+        pythonProcess.on('close', (code) => {
+            log(`Python process exited with code ${code}`);
+            pythonProcess = null;
+        });
+
+        // Wait for server to be ready
+        const checkServer = () => {
+            http.get(`http://localhost:${SERVER_PORT}/health`, (res) => {
+                if (res.statusCode === 200) {
+                    log('Python server is ready');
+                    resolve(true);
+                } else {
+                    setTimeout(checkServer, 200);
+                }
+            }).on('error', () => {
+                setTimeout(checkServer, 200);
+            });
+        };
+
+        // Start checking after a brief delay
+        setTimeout(checkServer, 500);
     });
 }
+
+// IPC handler for starting the server (called from renderer when Master mode is selected)
+ipcMain.handle('start-server', async () => {
+    log('Received request to start server (Master mode)');
+    const success = await startPythonServer();
+    return { success, port: SERVER_PORT };
+});
+
+// IPC handler to check if we're in Electron
+ipcMain.handle('is-electron', () => true);
 
 function killPythonServer() {
     if (pythonProcess) {
@@ -88,12 +123,15 @@ function killPythonServer() {
 }
 
 function createWindow() {
+    const preloadPath = path.join(__dirname, 'preload.cjs');
+
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
+            preload: preloadPath
         },
         // Hide window until content is loaded to avoid white flash
         show: false,
@@ -101,35 +139,22 @@ function createWindow() {
         titleBarStyle: 'hiddenInset' // Mac-style application feel
     });
 
-    const startUrl = isDev
-        ? 'http://localhost:5173'  // Vite dev server
-        : `http://localhost:${SERVER_PORT}`; // Python serving compiled static
-
-    log(`Loading URL: ${startUrl}`);
-
-    // Poll for server readiness before loading
-    const checkServer = () => {
-        http.get(`http://localhost:${SERVER_PORT}/health`, (res) => {
-            if (res.statusCode === 200) {
-                mainWindow.loadURL(startUrl);
-                mainWindow.on('ready-to-show', () => mainWindow.show());
-            } else {
-                setTimeout(checkServer, 500);
-            }
-        }).on('error', () => {
-            setTimeout(checkServer, 500);
-        });
-    };
+    log(`Preload script: ${preloadPath}`);
 
     if (isDev) {
-        // In dev, assuming dev servers are already running or we just load vite
-        mainWindow.loadURL(startUrl);
+        // In dev, load from Vite dev server (user chooses mode in UI)
+        const devUrl = 'http://localhost:5173';
+        log(`Loading dev URL: ${devUrl}`);
+        mainWindow.loadURL(devUrl);
         mainWindow.show();
         mainWindow.webContents.openDevTools();
     } else {
-        // In prod, wait for Python server
-        startPythonServer();
-        checkServer();
+        // In prod, load static files using file:// protocol
+        // The mode selector will be shown first, then server started if Master mode
+        const indexPath = path.join(projectRoot, 'dist', 'index.html');
+        log(`Loading file: ${indexPath}`);
+        mainWindow.loadFile(indexPath);
+        mainWindow.on('ready-to-show', () => mainWindow.show());
     }
 
     mainWindow.on('closed', () => {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GimbalStore, ControlMapping, GimbalPosition, GimbalSpeed, GimbalInfo, TelemetryData, GimbalMode } from '../types';
+import type { GimbalStore, ControlMapping, GimbalPosition, GimbalSpeed, GimbalInfo, TelemetryData, GimbalMode, ConnectionMode, ClientIdentity } from '../types';
 
 const defaultControlMapping: ControlMapping = {
   joystickLeft: {
@@ -20,6 +20,8 @@ export const useGimbalStore = create<GimbalStore>((set, _get) => ({
   connected: false,
   connecting: false,
   serverUrl: 'http://localhost:3001',
+  connectionMode: null,
+  clientIdentity: null,
 
   // Current gimbal
   activeGimbalId: null,
@@ -50,6 +52,8 @@ export const useGimbalStore = create<GimbalStore>((set, _get) => ({
   setConnected: (connected: boolean) => set({ connected }),
   setConnecting: (connecting: boolean) => set({ connecting }),
   setServerUrl: (serverUrl: string) => set({ serverUrl }),
+  setConnectionMode: (connectionMode: ConnectionMode) => set({ connectionMode }),
+  setClientIdentity: (clientIdentity: ClientIdentity | null) => set({ clientIdentity }),
 
   setActiveGimbal: (activeGimbalId: string | null) => set({ activeGimbalId }),
   setAvailableGimbals: (availableGimbals: GimbalInfo[]) => set({ availableGimbals }),
