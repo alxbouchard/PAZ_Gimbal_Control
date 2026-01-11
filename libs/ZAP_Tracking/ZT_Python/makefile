@@ -4,8 +4,12 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -fPIC -Wall
 INCLUDES = -I../Includes -I../Import/Includes
-ZT_LIB = ../Binaries/ZT.so
-LDFLAGS = $(ZT_LIB) -L../Import/Libraries -Wl,-rpath,@loader_path
+
+# Link against ZT.so for gimbal functions AND ZT_Lib.a for ATEM functions
+ZT_SO = ../Binaries/ZT.so
+ZT_LIB_A = ../Libraries/ZT_Lib.a
+FRAMEWORKS = -framework IOKit -framework CoreFoundation
+LDFLAGS = $(ZT_SO) $(ZT_LIB_A) $(FRAMEWORKS) -L../Import/Libraries -Wl,-rpath,@loader_path
 
 TARGET = ../Binaries/libzt_python.dylib
 

@@ -1,10 +1,14 @@
 import { io, Socket } from 'socket.io-client';
 import { useGimbalStore } from '../store/gimbalStore';
-import type { GimbalSpeed, ServerToClientEvents, ClientToServerEvents, ClientIdentity } from '../types';
+import { useAtemStore } from '../store/atemStore';
+import type { GimbalSpeed, ServerToClientEvents, ClientToServerEvents, ClientIdentity, AtemConfig, AtemMappings, AtemCameraType } from '../types';
 
-// Extended events to include client identity
+// Extended events to include client identity and ATEM
 interface ExtendedServerToClientEvents extends ServerToClientEvents {
   'client:identity': (identity: ClientIdentity) => void;
+  'atem:status': (config: AtemConfig) => void;
+  'atem:mappings': (mappings: AtemMappings) => void;
+  'atem:error': (message: string) => void;
 }
 
 type TypedSocket = Socket<ExtendedServerToClientEvents, ClientToServerEvents>;
@@ -87,6 +91,21 @@ class GimbalSocketService {
         this.socket.on('client:identity', (identity) => {
           console.log('Client identity:', identity);
           store.setClientIdentity(identity);
+        });
+
+        // Listen for ATEM events
+        const atemStore = useAtemStore.getState();
+
+        this.socket.on('atem:status', (config) => {
+          atemStore.setConfig(config);
+        });
+
+        this.socket.on('atem:mappings', (mappings) => {
+          atemStore.setMappings(mappings);
+        });
+
+        this.socket.on('atem:error', (message) => {
+          console.error('ATEM error:', message);
         });
 
       } catch (error) {
@@ -208,6 +227,76 @@ class GimbalSocketService {
   connectGimbal(gimbalId: string): void {
     if (this.socket?.connected) {
       this.socket.emit('gimbal:connect', gimbalId);
+    }
+  }
+
+  // ============== ATEM Controls ==============
+
+  connectAtem(ip: string): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:connect' as any, { ip });
+    }
+  }
+
+  disconnectAtem(): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:disconnect' as any);
+    }
+  }
+
+  setAtemGimbalMapping(gimbalId: string, port: number, cameraType: AtemCameraType): void {
+    if (this.socket?.connected) {
+      // Convert camera type to server format (0 = EF, 1 = MFT)
+      const cameraTypeNum = cameraType === 'EF' ? 0 : 1;
+      this.socket.emit('atem:setGimbalMapping' as any, { gimbalId, port, cameraType: cameraTypeNum });
+    }
+  }
+
+  setAtemFocus(port: number, value: number, cameraType: AtemCameraType = 'MFT'): void {
+    if (this.socket?.connected) {
+      const cameraTypeNum = cameraType === 'EF' ? 0 : 1;
+      this.socket.emit('atem:setFocus' as any, { port, value, cameraType: cameraTypeNum });
+      useAtemStore.getState().setCameraControl('focus', value);
+    }
+  }
+
+  triggerAtemAutoFocus(port: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:autoFocus' as any, { port });
+    }
+  }
+
+  setAtemAperture(port: number, value: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:setAperture' as any, { port, value });
+      useAtemStore.getState().setCameraControl('aperture', value);
+    }
+  }
+
+  triggerAtemAutoAperture(port: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:autoAperture' as any, { port });
+    }
+  }
+
+  setAtemGain(port: number, value: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:setGain' as any, { port, value });
+      useAtemStore.getState().setCameraControl('gain', value);
+    }
+  }
+
+  setAtemZoom(port: number, value: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:setZoom' as any, { port, value });
+      useAtemStore.getState().setCameraControl('zoom', value);
+    }
+  }
+
+  setAtemZoomPosition(port: number, value: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('atem:setZoomPosition' as any, { port, value });
+      useAtemStore.getState().setCameraControl('zoom', value);
     }
   }
 }

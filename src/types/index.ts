@@ -163,3 +163,27 @@ export interface TabConfig {
   label: string;
   icon: string;
 }
+
+// ATEM types
+export type AtemCameraType = 'EF' | 'MFT';
+export type AtemCameraTypeNum = 0 | 1;  // 0 = EF, 1 = MFT (from server)
+
+export interface AtemConfig {
+  ip: string;
+  connected: boolean;
+  connecting: boolean;
+}
+
+export interface AtemGimbalMapping {
+  port: number;  // 1-8, 0 = none
+  cameraType: AtemCameraTypeNum;  // Server sends 0 = EF, 1 = MFT
+}
+
+export interface AtemMappings {
+  [gimbalId: string]: AtemGimbalMapping;
+}
+
+// Helper to convert camera type number to string
+export function cameraTypeToString(type: AtemCameraTypeNum | undefined): AtemCameraType {
+  return type === 0 ? 'EF' : 'MFT';
+}

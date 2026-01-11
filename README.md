@@ -2,7 +2,7 @@
 
 Professional multi-user control interface for DJI Ronin RS gimbals with ZAP Tracking system integration.
 
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Version](https://img.shields.io/badge/version-1.4.0-blue)
 ![Platform](https://img.shields.io/badge/platform-macOS%20ARM64-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -207,6 +207,13 @@ CSC_IDENTITY_AUTO_DISCOVERY=false npm run electron:build
 ```
 
 ## Changelog
+
+### v1.4.0 (2025-01-11)
+- **ATEM Switcher Integration**: Control camera parameters via Blackmagic ATEM
+- **Camera Control Panel**: Focus, Aperture, Gain, and Zoom sliders with Auto buttons
+- **Gimbal-to-Camera Mapping**: Associate each gimbal with an ATEM camera port (1-8)
+- **Camera Type Support**: MFT (Micro Four Thirds) and EF (Canon EF) lens support
+- **ATEM Settings UI**: Configure ATEM IP and camera mappings in Settings
 
 ### v1.3.0 (2025-01-10)
 - **Multi-User Support**: Multiple operators can now control different gimbals

@@ -13,6 +13,7 @@
 
 #include <ZT/IGimbal.h>
 #include <ZT/ISystem.h>
+#include "../ZT_Lib/Atem.h"
 
 // ============== C API ==============
 
@@ -211,7 +212,88 @@ const char* ZTP_Result_GetName(int result) {
 
 // Version info
 const char* ZTP_GetVersion() {
-    return "1.0.0";
+    return "1.1.0";
+}
+
+// ============== ATEM Camera Control Functions ==============
+
+// Camera type enum (matches Atem::CameraType)
+// 0 = CAMERA_EF (Canon EF mount - offset-based focus)
+// 1 = CAMERA_MFT (Micro Four Thirds - absolute focus)
+
+void* ZTP_Atem_FindOrCreate(const char* ipv4_address) {
+    if (!ipv4_address) return nullptr;
+
+    // Format the ID string as expected by Atem class
+    char id[64];
+    snprintf(id, sizeof(id), "IPv4 = %s", ipv4_address);
+
+    return Atem::FindOrCreate(id);
+}
+
+int ZTP_Atem_Focus_Absolute(void* atem, unsigned int port, double value_pc, int camera_type) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+    if (value_pc < 0.0 || value_pc > 100.0) return -3;
+
+    bool result = static_cast<Atem*>(atem)->Focus_Absolute(
+        port,
+        value_pc,
+        static_cast<Atem::CameraType>(camera_type)
+    );
+    return result ? 0 : -4;
+}
+
+int ZTP_Atem_Focus_Auto(void* atem, unsigned int port) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+
+    bool result = static_cast<Atem*>(atem)->Focus_Auto(port);
+    return result ? 0 : -3;
+}
+
+int ZTP_Atem_Aperture_Absolute(void* atem, unsigned int port, double value_pc) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+    if (value_pc < 0.0 || value_pc > 100.0) return -3;
+
+    bool result = static_cast<Atem*>(atem)->Aperture_Absolute(port, value_pc);
+    return result ? 0 : -4;
+}
+
+int ZTP_Atem_Aperture_Auto(void* atem, unsigned int port) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+
+    bool result = static_cast<Atem*>(atem)->Aperture_Auto(port);
+    return result ? 0 : -3;
+}
+
+int ZTP_Atem_Gain_Absolute(void* atem, unsigned int port, double value_pc) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+    if (value_pc < 0.0 || value_pc > 100.0) return -3;
+
+    bool result = static_cast<Atem*>(atem)->Gain_Absolute(port, value_pc);
+    return result ? 0 : -4;
+}
+
+int ZTP_Atem_Zoom(void* atem, unsigned int port, double value_pc) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+    if (value_pc < 0.0 || value_pc > 100.0) return -3;
+
+    bool result = static_cast<Atem*>(atem)->Zoom(port, value_pc);
+    return result ? 0 : -4;
+}
+
+int ZTP_Atem_Zoom_Absolute(void* atem, unsigned int port, double value_pc) {
+    if (!atem) return -1;
+    if (port < 1 || port > 8) return -2;
+    if (value_pc < 0.0 || value_pc > 100.0) return -3;
+
+    bool result = static_cast<Atem*>(atem)->Zoom_Absolute(port, value_pc);
+    return result ? 0 : -4;
 }
 
 } // extern "C"

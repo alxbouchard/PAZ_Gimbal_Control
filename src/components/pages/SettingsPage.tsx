@@ -3,6 +3,7 @@ import { useGimbalStore } from '../../store/gimbalStore';
 import { ShortcutEditor } from '../ShortcutEditor';
 import { GamepadConfig } from '../GamepadConfig';
 import { GimbalManager } from '../GimbalManager';
+import { AtemSettings } from '../AtemSettings';
 
 export function SettingsPage() {
   const { controlMapping, setControlMapping, sensitivity, setSensitivity, serverUrl, setServerUrl } = useGimbalStore();
@@ -17,6 +18,11 @@ export function SettingsPage() {
       {/* Gimbal Devices - Most important, at the top */}
       <div className="bg-gimbal-panel rounded-xl border border-gimbal-border p-6">
         <GimbalManager />
+      </div>
+
+      {/* ATEM Switcher Configuration */}
+      <div className="bg-gimbal-panel rounded-xl border border-gimbal-border p-6">
+        <AtemSettings />
       </div>
 
       {/* Connection Settings */}

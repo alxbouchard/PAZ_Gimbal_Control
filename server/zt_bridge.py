@@ -68,6 +68,11 @@ class ZTP_Info(Structure):
     ]
 
 
+# ============== ATEM Camera Type Constants ==============
+CAMERA_EF = 0   # Canon EF mount - uses offset-based focus
+CAMERA_MFT = 1  # Micro Four Thirds - uses absolute focus
+
+
 # ============== Global State ==============
 
 # Each gimbal has its own state
@@ -94,6 +99,16 @@ home_animation = {"active": False, "speed": 1.0, "target": {"pitch": 0.0, "yaw":
 active_gimbal_id: Optional[str] = None
 real_gimbals: Dict[str, Any] = {}  # Store real gimbal wrappers by ID
 current_speed_multiplier = 1.0  # Global speed multiplier (0.1 to 2.0)
+
+# ============== ATEM State ==============
+atem_config: Dict[str, Any] = {
+    "ip": "",
+    "connected": False,
+    "connecting": False,
+}
+atem_instance = None  # ATEM library wrapper instance
+# Gimbal ID -> ATEM config (port, camera_type)
+gimbal_atem_mapping: Dict[str, Dict[str, Any]] = {}
 
 # Virtual gimbal always exists and mirrors the active real gimbal
 VIRTUAL_GIMBAL_ID = "gimbal-virtual"
@@ -437,6 +452,118 @@ class ZTLibWrapper:
 zt_wrapper: Optional[ZTLibWrapper] = None
 
 
+# ============== ATEM Library Wrapper ==============
+
+class AtemWrapper:
+    """Wrapper for ATEM camera control functions via libzt_python.dylib."""
+
+    def __init__(self, lib):
+        """Initialize with the loaded ctypes library."""
+        self.lib = lib
+        self.atem = None
+        self._setup_functions()
+
+    def _setup_functions(self):
+        """Set up function signatures for ATEM functions."""
+        # Atem connection
+        self.lib.ZTP_Atem_FindOrCreate.restype = c_void_p
+        self.lib.ZTP_Atem_FindOrCreate.argtypes = [ctypes.c_char_p]
+
+        # Camera control functions
+        self.lib.ZTP_Atem_Focus_Absolute.restype = c_int
+        self.lib.ZTP_Atem_Focus_Absolute.argtypes = [c_void_p, c_uint, c_double, c_int]
+
+        self.lib.ZTP_Atem_Focus_Auto.restype = c_int
+        self.lib.ZTP_Atem_Focus_Auto.argtypes = [c_void_p, c_uint]
+
+        self.lib.ZTP_Atem_Aperture_Absolute.restype = c_int
+        self.lib.ZTP_Atem_Aperture_Absolute.argtypes = [c_void_p, c_uint, c_double]
+
+        self.lib.ZTP_Atem_Aperture_Auto.restype = c_int
+        self.lib.ZTP_Atem_Aperture_Auto.argtypes = [c_void_p, c_uint]
+
+        self.lib.ZTP_Atem_Gain_Absolute.restype = c_int
+        self.lib.ZTP_Atem_Gain_Absolute.argtypes = [c_void_p, c_uint, c_double]
+
+        self.lib.ZTP_Atem_Zoom.restype = c_int
+        self.lib.ZTP_Atem_Zoom.argtypes = [c_void_p, c_uint, c_double]
+
+        self.lib.ZTP_Atem_Zoom_Absolute.restype = c_int
+        self.lib.ZTP_Atem_Zoom_Absolute.argtypes = [c_void_p, c_uint, c_double]
+
+    def connect(self, ip_address: str) -> bool:
+        """Connect to ATEM switcher at the given IP address."""
+        try:
+            ip_bytes = ip_address.encode('utf-8')
+            self.atem = self.lib.ZTP_Atem_FindOrCreate(ip_bytes)
+            if self.atem:
+                print(f"ATEM: Connected to {ip_address}")
+                return True
+            else:
+                print(f"ATEM: Failed to connect to {ip_address}")
+                return False
+        except Exception as e:
+            print(f"ATEM: Connection error: {e}")
+            return False
+
+    def is_connected(self) -> bool:
+        """Check if connected to ATEM."""
+        return self.atem is not None
+
+    def set_focus(self, port: int, value_pc: float, camera_type: int = CAMERA_MFT) -> bool:
+        """Set focus position (0-100%)."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Focus_Absolute(self.atem, port, value_pc, camera_type)
+        return result == 0
+
+    def auto_focus(self, port: int) -> bool:
+        """Trigger auto focus."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Focus_Auto(self.atem, port)
+        return result == 0
+
+    def set_aperture(self, port: int, value_pc: float) -> bool:
+        """Set aperture/iris position (0-100%)."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Aperture_Absolute(self.atem, port, value_pc)
+        return result == 0
+
+    def auto_aperture(self, port: int) -> bool:
+        """Trigger auto aperture/iris."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Aperture_Auto(self.atem, port)
+        return result == 0
+
+    def set_gain(self, port: int, value_pc: float) -> bool:
+        """Set ISO/gain (0-100%)."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Gain_Absolute(self.atem, port, value_pc)
+        return result == 0
+
+    def set_zoom_speed(self, port: int, value_pc: float) -> bool:
+        """Set continuous zoom speed (0-100%, 50% = stopped)."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Zoom(self.atem, port, value_pc)
+        return result == 0
+
+    def set_zoom_position(self, port: int, value_pc: float) -> bool:
+        """Set absolute zoom position (0-100%)."""
+        if not self.atem:
+            return False
+        result = self.lib.ZTP_Atem_Zoom_Absolute(self.atem, port, value_pc)
+        return result == 0
+
+
+# Global ATEM wrapper
+atem_wrapper: Optional[AtemWrapper] = None
+
+
 # ============== Safety Constants ==============
 # Based on DJI Ronin RS 3/RS 4 official specifications
 
@@ -639,6 +766,10 @@ async def connect(sid, environ):
         "mode": get_active_mode(),
     }, room=sid)
 
+    # Send ATEM status and mappings
+    await sio.emit('atem:status', atem_config, room=sid)
+    await sio.emit('atem:mappings', gimbal_atem_mapping, room=sid)
+
 
 @sio.event
 async def disconnect(sid):
@@ -761,6 +892,181 @@ async def handle_set_focus(sid, value):
 async def handle_calibrate_focus(sid):
     print('Calibrating focus')
     calibrate_focus()
+
+
+# ============== ATEM WebSocket Events ==============
+
+@sio.on('atem:connect')
+async def handle_atem_connect(sid, data):
+    """Connect to ATEM switcher."""
+    global atem_config, atem_wrapper, zt_wrapper
+
+    ip = data.get('ip', '').strip()
+    if not ip:
+        await sio.emit('atem:error', 'IP address is required', room=sid)
+        return
+
+    # Validate IP format
+    import re
+    ip_regex = r'^(\d{1,3}\.){3}\d{1,3}$'
+    if not re.match(ip_regex, ip):
+        await sio.emit('atem:error', 'Invalid IP address format', room=sid)
+        return
+
+    atem_config['connecting'] = True
+    atem_config['ip'] = ip
+    await sio.emit('atem:status', atem_config)
+
+    try:
+        # Need the ZT library loaded to use ATEM wrapper
+        if zt_wrapper and zt_wrapper.lib:
+            atem_wrapper = AtemWrapper(zt_wrapper.lib)
+            if atem_wrapper.connect(ip):
+                atem_config['connected'] = True
+                atem_config['connecting'] = False
+                print(f'ATEM: Connected to {ip}')
+            else:
+                atem_config['connected'] = False
+                atem_config['connecting'] = False
+                await sio.emit('atem:error', f'Failed to connect to ATEM at {ip}', room=sid)
+        else:
+            atem_config['connecting'] = False
+            await sio.emit('atem:error', 'ZT library not loaded - cannot connect to ATEM', room=sid)
+
+    except Exception as e:
+        atem_config['connected'] = False
+        atem_config['connecting'] = False
+        await sio.emit('atem:error', f'Connection error: {str(e)}', room=sid)
+
+    await sio.emit('atem:status', atem_config)
+
+
+@sio.on('atem:disconnect')
+async def handle_atem_disconnect(sid):
+    """Disconnect from ATEM switcher."""
+    global atem_config, atem_wrapper
+
+    atem_wrapper = None
+    atem_config['connected'] = False
+    atem_config['connecting'] = False
+    print('ATEM: Disconnected')
+    await sio.emit('atem:status', atem_config)
+
+
+@sio.on('atem:getStatus')
+async def handle_atem_get_status(sid):
+    """Get current ATEM connection status."""
+    await sio.emit('atem:status', atem_config, room=sid)
+
+
+@sio.on('atem:setGimbalMapping')
+async def handle_atem_set_gimbal_mapping(sid, data):
+    """Set ATEM camera port mapping for a gimbal."""
+    global gimbal_atem_mapping
+
+    gimbal_id = data.get('gimbalId', '')
+    port = data.get('port', 0)  # 0 = no ATEM, 1-8 = camera port
+    camera_type = data.get('cameraType', CAMERA_MFT)
+
+    if gimbal_id:
+        if port > 0 and port <= 8:
+            gimbal_atem_mapping[gimbal_id] = {
+                'port': port,
+                'cameraType': camera_type,
+            }
+            print(f'ATEM: Mapped gimbal {gimbal_id} to port {port} (camera type {camera_type})')
+        elif port == 0:
+            # Remove mapping
+            if gimbal_id in gimbal_atem_mapping:
+                del gimbal_atem_mapping[gimbal_id]
+                print(f'ATEM: Removed mapping for gimbal {gimbal_id}')
+
+    await sio.emit('atem:mappings', gimbal_atem_mapping)
+
+
+@sio.on('atem:getMappings')
+async def handle_atem_get_mappings(sid):
+    """Get current gimbal-to-ATEM mappings."""
+    await sio.emit('atem:mappings', gimbal_atem_mapping, room=sid)
+
+
+@sio.on('atem:setFocus')
+async def handle_atem_set_focus(sid, data):
+    """Set camera focus via ATEM."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    value = data.get('value', 50.0)
+    camera_type = data.get('cameraType', CAMERA_MFT)
+
+    atem_wrapper.set_focus(port, value, camera_type)
+
+
+@sio.on('atem:autoFocus')
+async def handle_atem_auto_focus(sid, data):
+    """Trigger auto focus via ATEM."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    atem_wrapper.auto_focus(port)
+    print(f'ATEM: Auto focus triggered on port {port}')
+
+
+@sio.on('atem:setAperture')
+async def handle_atem_set_aperture(sid, data):
+    """Set camera aperture/iris via ATEM."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    value = data.get('value', 50.0)
+    atem_wrapper.set_aperture(port, value)
+
+
+@sio.on('atem:autoAperture')
+async def handle_atem_auto_aperture(sid, data):
+    """Trigger auto aperture via ATEM."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    atem_wrapper.auto_aperture(port)
+    print(f'ATEM: Auto aperture triggered on port {port}')
+
+
+@sio.on('atem:setGain')
+async def handle_atem_set_gain(sid, data):
+    """Set camera ISO/gain via ATEM."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    value = data.get('value', 50.0)
+    atem_wrapper.set_gain(port, value)
+
+
+@sio.on('atem:setZoom')
+async def handle_atem_set_zoom(sid, data):
+    """Set camera zoom via ATEM (continuous speed)."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    value = data.get('value', 50.0)  # 50 = stop, <50 = zoom out, >50 = zoom in
+    atem_wrapper.set_zoom_speed(port, value)
+
+
+@sio.on('atem:setZoomPosition')
+async def handle_atem_set_zoom_position(sid, data):
+    """Set camera zoom position via ATEM (absolute)."""
+    if not atem_wrapper or not atem_wrapper.is_connected():
+        return
+
+    port = data.get('port', 1)
+    value = data.get('value', 50.0)
+    atem_wrapper.set_zoom_position(port, value)
 
 
 @sio.on('gimbal:add')

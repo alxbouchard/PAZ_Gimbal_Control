@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MainLayout } from './components/Layout';
 import { ControlPanel } from './components/ControlPanel';
+import { CameraControls } from './components/CameraControls';
 import { VirtualGimbal } from './components/VirtualGimbal';
 import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/pages/SettingsPage';
@@ -34,7 +35,10 @@ function AppContent({ activeTab }: { activeTab: TabId }) {
       >
         {activeTab === 'control' && (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full">
-            <ControlPanel />
+            <div className="space-y-6">
+              <ControlPanel />
+              <CameraControls />
+            </div>
             <VirtualGimbal />
           </div>
         )}
