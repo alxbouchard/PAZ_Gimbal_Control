@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Focus, Aperture, Sun, ZoomIn, ZoomOut, CircleDot } from 'lucide-react';
 import { useAtemStore } from '../store/atemStore';
@@ -80,15 +80,9 @@ function ZoomSlider({ onChange, disabled }: ZoomSliderProps) {
     onChange(newValue);
   }, [onChange]);
 
-  const handleMouseDown = () => {
-    isDragging.current = true;
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-  };
+  const returnToCenter = useCallback(() => {
+    if (isDragging.current) return;
 
-  const handleMouseUp = () => {
-    isDragging.current = false;
     // Animate back to center (50)
     const animate = () => {
       setValue((prev) => {
@@ -104,7 +98,35 @@ function ZoomSlider({ onChange, disabled }: ZoomSliderProps) {
       });
     };
     animationRef.current = requestAnimationFrame(animate);
-  };
+  }, [onChange]);
+
+  const handleMouseDown = useCallback(() => {
+    isDragging.current = true;
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+  }, []);
+
+  // Global mouse/touch up listener to catch releases anywhere on the page
+  useEffect(() => {
+    const handleGlobalUp = () => {
+      if (isDragging.current) {
+        isDragging.current = false;
+        returnToCenter();
+      }
+    };
+
+    window.addEventListener('mouseup', handleGlobalUp);
+    window.addEventListener('touchend', handleGlobalUp);
+
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalUp);
+      window.removeEventListener('touchend', handleGlobalUp);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [returnToCenter]);
 
   const zoomDirection = value < 45 ? 'OUT' : value > 55 ? 'IN' : 'STOP';
   const zoomSpeed = Math.abs(value - 50);
@@ -136,10 +158,7 @@ function ZoomSlider({ onChange, disabled }: ZoomSliderProps) {
           value={value}
           onChange={(e) => handleChange(Number(e.target.value))}
           onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
           onTouchStart={handleMouseDown}
-          onTouchEnd={handleMouseUp}
           disabled={disabled}
           className="w-full h-2 appearance-none bg-gimbal-border rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
             [&::-webkit-slider-thumb]:appearance-none
