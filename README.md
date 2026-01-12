@@ -2,7 +2,7 @@
 
 Professional multi-user control interface for DJI Ronin RS gimbals with ZAP Tracking system integration.
 
-![Version](https://img.shields.io/badge/version-1.4.0-blue)
+![Version](https://img.shields.io/badge/version-1.5.1-blue)
 ![Platform](https://img.shields.io/badge/platform-macOS%20ARM64-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -199,6 +199,9 @@ npm run build
 # Run tests
 npm test
 
+# Run tests with UI
+npm run test:ui
+
 # Preview production build
 npm run preview
 
@@ -206,7 +209,39 @@ npm run preview
 CSC_IDENTITY_AUTO_DISCOVERY=false npm run electron:build
 ```
 
+## Testing
+
+The project includes a comprehensive test suite with **259 tests** covering:
+
+| Category | Files | Tests | Coverage |
+|----------|-------|-------|----------|
+| Stores | 5 | 122 | gimbalStore, atemStore, presetsStore, gamepadStore, shortcutsStore |
+| Hooks | 2 | 38 | useGamepad, useKeyboardControls |
+| Services | 1 | 13 | WebSocket service |
+| Components | 3 | 68 | AtemSettings, CameraControls, PresetControls |
+| Integration | 1 | 18 | Cross-store workflows |
+
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm test -- --coverage
+```
+
 ## Changelog
+
+### v1.5.1 (2025-01-12)
+- **Test Suite**: Added 259 comprehensive tests (stores, hooks, services, components, integration)
+- **Security Fixes**: Fixed all npm vulnerabilities (upgraded vite to 6.4.1, vitest to 4.0.16)
+- **Audit Report**: Added detailed code audit report (AUDIT_REPORT.md)
+
+### v1.5.0 (2025-01-11)
+- **Position Presets**: Save and recall 9 camera positions per gimbal (Shift+1-9 to recall, Ctrl+Shift+1-9 to save)
+- **Configuration Persistence**: ATEM mappings and presets are saved to disk and restored on restart
+- **Auto-Center Zoom**: Continuous zoom slider returns to center when released
+- **Gamepad Camera Control**: ATEM focus and zoom can be mapped to gamepad axes
+- **Improved ATEM Feedback**: Error messages displayed when connection fails
 
 ### v1.4.0 (2025-01-11)
 - **ATEM Switcher Integration**: Control camera parameters via Blackmagic ATEM

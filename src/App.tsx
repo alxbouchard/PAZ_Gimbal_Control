@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MainLayout } from './components/Layout';
 import { ControlPanel } from './components/ControlPanel';
 import { CameraControls } from './components/CameraControls';
+import { PresetControls } from './components/PresetControls';
 import { VirtualGimbal } from './components/VirtualGimbal';
 import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/pages/SettingsPage';
@@ -38,6 +39,7 @@ function AppContent({ activeTab }: { activeTab: TabId }) {
             <div className="space-y-6">
               <ControlPanel />
               <CameraControls />
+              <PresetControls />
             </div>
             <VirtualGimbal />
           </div>

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useGimbalStore } from '../store/gimbalStore';
+import { useAtemStore } from '../store/atemStore';
 import { useGamepadStore, type GamepadAction, type AxisAction } from '../store/gamepadStore';
 import { gimbalSocket } from '../services/websocket';
+import { cameraTypeToString } from '../types';
 
 interface GamepadState {
   leftStick: { x: number; y: number };
@@ -95,6 +97,23 @@ export function useGamepad() {
       case 'focusFar':
         gimbalSocket.setFocus(Math.max(0, store.focus - 5));
         break;
+      // ATEM Camera controls
+      case 'atemAutoFocus': {
+        const atemStore = useAtemStore.getState();
+        const mapping = store.activeGimbalId ? atemStore.mappings[store.activeGimbalId] : null;
+        if (mapping && atemStore.config.connected) {
+          gimbalSocket.triggerAtemAutoFocus(mapping.port);
+        }
+        break;
+      }
+      case 'atemAutoAperture': {
+        const atemStore = useAtemStore.getState();
+        const mapping = store.activeGimbalId ? atemStore.mappings[store.activeGimbalId] : null;
+        if (mapping && atemStore.config.connected) {
+          gimbalSocket.triggerAtemAutoAperture(mapping.port);
+        }
+        break;
+      }
       case 'none':
       default:
         break;
@@ -126,6 +145,30 @@ export function useGamepad() {
           gimbalSocket.setZoom(Math.max(0, Math.min(100, store.zoom - adjustedValue * 2)));
         }
         break;
+      // ATEM Camera axes
+      case 'atemFocus': {
+        if (Math.abs(value) > 0.1) {
+          const atemStore = useAtemStore.getState();
+          const mapping = store.activeGimbalId ? atemStore.mappings[store.activeGimbalId] : null;
+          if (mapping && atemStore.config.connected) {
+            const newFocus = Math.max(0, Math.min(100, atemStore.cameraControls.focus - adjustedValue * 2));
+            gimbalSocket.setAtemFocus(mapping.port, newFocus, cameraTypeToString(mapping.cameraType));
+          }
+        }
+        break;
+      }
+      case 'atemZoom': {
+        if (Math.abs(value) > 0.05) {
+          const atemStore = useAtemStore.getState();
+          const mapping = store.activeGimbalId ? atemStore.mappings[store.activeGimbalId] : null;
+          if (mapping && atemStore.config.connected) {
+            // Continuous zoom: 50 = stop, <50 = zoom out, >50 = zoom in
+            const zoomSpeed = 50 + value * 50 * axisSensitivity;
+            gimbalSocket.setAtemZoom(mapping.port, zoomSpeed);
+          }
+        }
+        break;
+      }
       case 'none':
       default:
         break;

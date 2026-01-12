@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Camera, Wifi, WifiOff, Video, Settings2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Camera, Wifi, WifiOff, Video, Settings2, AlertCircle, X } from 'lucide-react';
 import { useAtemStore } from '../store/atemStore';
 import { useGimbalStore } from '../store/gimbalStore';
 import { gimbalSocket } from '../services/websocket';
@@ -7,19 +7,29 @@ import type { AtemCameraType } from '../types';
 import { cameraTypeToString } from '../types';
 
 export function AtemSettings() {
-  const { config, mappings } = useAtemStore();
+  const { config, error, mappings, setError } = useAtemStore();
   const { availableGimbals } = useGimbalStore();
   const [ipInput, setIpInput] = useState(config.ip || '');
 
   const handleConnect = () => {
     if (ipInput.trim()) {
+      setError(null); // Clear any previous error
       gimbalSocket.connectAtem(ipInput.trim());
     }
   };
 
   const handleDisconnect = () => {
     gimbalSocket.disconnectAtem();
+    setError(null);
   };
+
+  // Auto-dismiss error after 10 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, setError]);
 
   const handleMappingChange = (gimbalId: string, port: number, cameraType: AtemCameraType) => {
     gimbalSocket.setAtemGimbalMapping(gimbalId, port, cameraType);
@@ -37,6 +47,20 @@ export function AtemSettings() {
       <p className="text-xs text-gimbal-text-dim">
         Connect to a Blackmagic ATEM switcher to control camera parameters (focus, zoom, aperture, ISO) via SDI camera control.
       </p>
+
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <AlertCircle size={16} className="text-red-400 flex-shrink-0" />
+          <span className="text-sm text-red-400 flex-1">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-400 hover:text-red-300"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Connection Status */}
       <div className="flex items-center gap-2 p-3 bg-gimbal-bg rounded-lg border border-gimbal-border">

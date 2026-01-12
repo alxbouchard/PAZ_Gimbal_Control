@@ -14,7 +14,10 @@ export type GamepadAction =
   | 'zoomIn'
   | 'zoomOut'
   | 'focusNear'
-  | 'focusFar';
+  | 'focusFar'
+  // ATEM Camera controls
+  | 'atemAutoFocus'
+  | 'atemAutoAperture';
 
 // Axis actions (continuous)
 export type AxisAction =
@@ -24,7 +27,10 @@ export type AxisAction =
   | 'roll'
   | 'focus'
   | 'zoom'
-  | 'speedMultiplier';
+  | 'speedMultiplier'
+  // ATEM Camera axes
+  | 'atemFocus'
+  | 'atemZoom';
 
 // Button names for display
 export const BUTTON_NAMES: Record<number, string> = {
@@ -67,6 +73,8 @@ export const ACTION_LABELS: Record<GamepadAction, string> = {
   zoomOut: 'Zoom Out',
   focusNear: 'Focus Near',
   focusFar: 'Focus Far',
+  atemAutoFocus: 'ATEM Auto Focus',
+  atemAutoAperture: 'ATEM Auto Aperture',
 };
 
 export const AXIS_ACTION_LABELS: Record<AxisAction, string> = {
@@ -77,6 +85,8 @@ export const AXIS_ACTION_LABELS: Record<AxisAction, string> = {
   focus: 'Focus Control',
   zoom: 'Zoom Control',
   speedMultiplier: 'Speed Multiplier',
+  atemFocus: 'ATEM Focus',
+  atemZoom: 'ATEM Zoom',
 };
 
 export interface AxisMapping {

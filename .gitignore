@@ -76,3 +76,6 @@ release/
 PAZ_Gimbal_Portable/
 PAZ_Gimbal_Control_Mac.zip
 PAZ Gimbal Control.app/Contents/Resources/app/
+
+# SDKs (downloaded separately)
+Blackmagic_ATEM_Switchers_SDK*/

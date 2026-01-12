@@ -1,5 +1,6 @@
+import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Focus, Aperture, Sun, ZoomIn, CircleDot } from 'lucide-react';
+import { Camera, Focus, Aperture, Sun, ZoomIn, ZoomOut, CircleDot } from 'lucide-react';
 import { useAtemStore } from '../store/atemStore';
 import { useGimbalStore } from '../store/gimbalStore';
 import { gimbalSocket } from '../services/websocket';
@@ -59,6 +60,103 @@ function CameraSlider({ label, value, onChange, onAuto, icon, disabled, showAuto
           [&::-webkit-slider-thumb]:transition-transform
           [&::-webkit-slider-thumb]:hover:scale-110"
       />
+    </div>
+  );
+}
+
+// Continuous zoom slider that auto-centers when released
+interface ZoomSliderProps {
+  onChange: (value: number) => void;
+  disabled?: boolean;
+}
+
+function ZoomSlider({ onChange, disabled }: ZoomSliderProps) {
+  const [value, setValue] = useState(50);
+  const isDragging = useRef(false);
+  const animationRef = useRef<number>();
+
+  const handleChange = useCallback((newValue: number) => {
+    setValue(newValue);
+    onChange(newValue);
+  }, [onChange]);
+
+  const handleMouseDown = () => {
+    isDragging.current = true;
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    // Animate back to center (50)
+    const animate = () => {
+      setValue((prev) => {
+        const diff = 50 - prev;
+        if (Math.abs(diff) < 1) {
+          onChange(50);
+          return 50;
+        }
+        const newVal = prev + diff * 0.2;
+        onChange(newVal);
+        animationRef.current = requestAnimationFrame(animate);
+        return newVal;
+      });
+    };
+    animationRef.current = requestAnimationFrame(animate);
+  };
+
+  const zoomDirection = value < 45 ? 'OUT' : value > 55 ? 'IN' : 'STOP';
+  const zoomSpeed = Math.abs(value - 50);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-gimbal-accent"><ZoomIn size={14} /></span>
+          <span className="text-xs font-medium text-gimbal-text-dim uppercase tracking-wider">
+            Zoom
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {zoomDirection === 'OUT' && <ZoomOut size={12} className="text-yellow-400" />}
+          {zoomDirection === 'IN' && <ZoomIn size={12} className="text-yellow-400" />}
+          <span className={`text-xs font-mono ${zoomDirection !== 'STOP' ? 'text-yellow-400' : 'text-gimbal-text-dim'}`}>
+            {zoomDirection} {zoomSpeed > 5 ? `${zoomSpeed.toFixed(0)}%` : ''}
+          </span>
+        </div>
+      </div>
+      <div className="relative">
+        {/* Center indicator */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gimbal-accent/30 -translate-x-1/2 pointer-events-none" />
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={value}
+          onChange={(e) => handleChange(Number(e.target.value))}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchEnd={handleMouseUp}
+          disabled={disabled}
+          className="w-full h-2 appearance-none bg-gimbal-border rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+            [&::-webkit-slider-thumb]:appearance-none
+            [&::-webkit-slider-thumb]:w-4
+            [&::-webkit-slider-thumb]:h-4
+            [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:bg-yellow-400
+            [&::-webkit-slider-thumb]:cursor-pointer
+            [&::-webkit-slider-thumb]:shadow-lg
+            [&::-webkit-slider-thumb]:transition-transform
+            [&::-webkit-slider-thumb]:hover:scale-110"
+        />
+      </div>
+      <div className="flex justify-between text-[9px] text-gimbal-text-dim">
+        <span>Wide</span>
+        <span>Tele</span>
+      </div>
     </div>
   );
 }
@@ -153,11 +251,8 @@ export function CameraControls() {
           disabled={!connected}
         />
 
-        <CameraSlider
-          label="Zoom"
-          value={cameraControls.zoom}
+        <ZoomSlider
           onChange={handleZoomChange}
-          icon={<ZoomIn size={14} />}
           disabled={!connected}
         />
       </div>

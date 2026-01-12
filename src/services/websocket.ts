@@ -1,14 +1,16 @@
 import { io, Socket } from 'socket.io-client';
 import { useGimbalStore } from '../store/gimbalStore';
 import { useAtemStore } from '../store/atemStore';
-import type { GimbalSpeed, ServerToClientEvents, ClientToServerEvents, ClientIdentity, AtemConfig, AtemMappings, AtemCameraType } from '../types';
+import { usePresetsStore } from '../store/presetsStore';
+import type { GimbalSpeed, ServerToClientEvents, ClientToServerEvents, ClientIdentity, AtemConfig, AtemMappings, AtemCameraType, PresetList } from '../types';
 
-// Extended events to include client identity and ATEM
+// Extended events to include client identity, ATEM, and presets
 interface ExtendedServerToClientEvents extends ServerToClientEvents {
   'client:identity': (identity: ClientIdentity) => void;
   'atem:status': (config: AtemConfig) => void;
   'atem:mappings': (mappings: AtemMappings) => void;
   'atem:error': (message: string) => void;
+  'preset:list': (data: PresetList) => void;
 }
 
 type TypedSocket = Socket<ExtendedServerToClientEvents, ClientToServerEvents>;
@@ -106,6 +108,15 @@ class GimbalSocketService {
 
         this.socket.on('atem:error', (message) => {
           console.error('ATEM error:', message);
+          atemStore.setError(message);
+          atemStore.setConfig({ connecting: false });
+        });
+
+        // Listen for preset events
+        const presetsStore = usePresetsStore.getState();
+
+        this.socket.on('preset:list', (data) => {
+          presetsStore.setPresets(data.gimbalId, data.presets);
         });
 
       } catch (error) {
@@ -297,6 +308,32 @@ class GimbalSocketService {
     if (this.socket?.connected) {
       this.socket.emit('atem:setZoomPosition' as any, { port, value });
       useAtemStore.getState().setCameraControl('zoom', value);
+    }
+  }
+
+  // ============== Preset Controls ==============
+
+  savePreset(gimbalId: string, presetNum: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('preset:save' as any, { gimbalId, preset: presetNum });
+    }
+  }
+
+  recallPreset(gimbalId: string, presetNum: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('preset:recall' as any, { gimbalId, preset: presetNum });
+    }
+  }
+
+  deletePreset(gimbalId: string, presetNum: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('preset:delete' as any, { gimbalId, preset: presetNum });
+    }
+  }
+
+  getPresets(gimbalId: string): void {
+    if (this.socket?.connected) {
+      this.socket.emit('preset:getAll' as any, { gimbalId });
     }
   }
 }

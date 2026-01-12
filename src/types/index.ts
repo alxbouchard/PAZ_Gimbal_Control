@@ -187,3 +187,15 @@ export interface AtemMappings {
 export function cameraTypeToString(type: AtemCameraTypeNum | undefined): AtemCameraType {
   return type === 0 ? 'EF' : 'MFT';
 }
+
+// Preset types
+export interface PresetPosition {
+  pitch: number;
+  yaw: number;
+  roll: number;
+}
+
+export interface PresetList {
+  gimbalId: string;
+  presets: Record<string, PresetPosition>;
+}

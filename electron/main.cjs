@@ -114,6 +114,48 @@ ipcMain.handle('start-server', async () => {
 // IPC handler to check if we're in Electron
 ipcMain.handle('is-electron', () => true);
 
+// ============== Configuration Persistence ==============
+// Store configs in app data directory (~/Library/Application Support/PAZ Gimbal Control/)
+
+function getConfigPath(filename) {
+    const configDir = app.getPath('userData');
+    return path.join(configDir, filename);
+}
+
+// Save configuration to file
+ipcMain.handle('save-config', async (event, { filename, data }) => {
+    try {
+        const configPath = getConfigPath(filename);
+        fs.writeFileSync(configPath, JSON.stringify(data, null, 2), 'utf-8');
+        log(`Config saved: ${filename}`);
+        return { success: true };
+    } catch (error) {
+        log(`Error saving config ${filename}: ${error.message}`);
+        return { success: false, error: error.message };
+    }
+});
+
+// Load configuration from file
+ipcMain.handle('load-config', async (event, { filename }) => {
+    try {
+        const configPath = getConfigPath(filename);
+        if (fs.existsSync(configPath)) {
+            const data = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+            log(`Config loaded: ${filename}`);
+            return { success: true, data };
+        }
+        return { success: false, error: 'File not found' };
+    } catch (error) {
+        log(`Error loading config ${filename}: ${error.message}`);
+        return { success: false, error: error.message };
+    }
+});
+
+// Get config directory path
+ipcMain.handle('get-config-path', async () => {
+    return app.getPath('userData');
+});
+
 function killPythonServer() {
     if (pythonProcess) {
         log('Killing Python process...');

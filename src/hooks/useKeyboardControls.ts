@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useGimbalStore } from '../store/gimbalStore';
 import { useShortcutsStore, type ActionId } from '../store/shortcutsStore';
+import { usePresetsStore } from '../store/presetsStore';
 import { gimbalSocket } from '../services/websocket';
 
 // Speed presets for quick access
@@ -155,6 +156,29 @@ export function useKeyboardControls() {
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement
       ) {
+        return;
+      }
+
+      // Handle preset shortcuts: Shift+1-9 to recall, Ctrl+Shift+1-9 to save
+      const presetMatch = event.key.match(/^[1-9]$/);
+      if (presetMatch && (event.shiftKey || event.ctrlKey)) {
+        const presetNum = parseInt(event.key);
+        const { activeGimbalId } = useGimbalStore.getState();
+
+        if (activeGimbalId) {
+          if (event.ctrlKey && event.shiftKey) {
+            // Ctrl+Shift+1-9: Save preset
+            gimbalSocket.savePreset(activeGimbalId, presetNum);
+            event.preventDefault();
+          } else if (event.shiftKey) {
+            // Shift+1-9: Recall preset
+            const presets = usePresetsStore.getState().getPresetsForGimbal(activeGimbalId);
+            if (presets[String(presetNum)]) {
+              gimbalSocket.recallPreset(activeGimbalId, presetNum);
+            }
+            event.preventDefault();
+          }
+        }
         return;
       }
 

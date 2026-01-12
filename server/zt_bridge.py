@@ -19,8 +19,10 @@ import ctypes
 from ctypes import c_void_p, c_int, c_double, c_char, c_uint, c_ubyte, POINTER, Structure
 from typing import Optional, Dict, Any, List
 
-# Config file path
+# Config file paths
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'gimbals.json')
+ATEM_CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'atem_config.json')
+PRESETS_FILE = os.path.join(os.path.dirname(__file__), 'presets.json')
 
 # WebSocket server
 try:
@@ -245,6 +247,72 @@ def load_gimbal_config():
 
     except Exception as e:
         print(f"Error loading gimbal config: {e}")
+
+
+def save_atem_config():
+    """Save ATEM configuration to JSON file."""
+    config = {
+        "ip": atem_config.get("ip", ""),
+        "mappings": gimbal_atem_mapping,
+    }
+    try:
+        with open(ATEM_CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=2)
+        print(f"Saved ATEM config to {ATEM_CONFIG_FILE}")
+    except Exception as e:
+        print(f"Error saving ATEM config: {e}")
+
+
+def load_atem_config():
+    """Load ATEM configuration from JSON file."""
+    global atem_config, gimbal_atem_mapping
+
+    if not os.path.exists(ATEM_CONFIG_FILE):
+        print("No ATEM config file found")
+        return
+
+    try:
+        with open(ATEM_CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+
+        atem_config["ip"] = config.get("ip", "")
+        gimbal_atem_mapping.update(config.get("mappings", {}))
+        print(f"Loaded ATEM config: IP={atem_config['ip']}, mappings={len(gimbal_atem_mapping)}")
+
+    except Exception as e:
+        print(f"Error loading ATEM config: {e}")
+
+
+# ============== Presets (Position Memories) ==============
+# Structure: { gimbal_id: { "1": {pitch, yaw, roll}, "2": {...}, ... } }
+gimbal_presets: Dict[str, Dict[str, Dict[str, float]]] = {}
+
+
+def save_presets():
+    """Save gimbal presets to JSON file."""
+    try:
+        with open(PRESETS_FILE, 'w') as f:
+            json.dump(gimbal_presets, f, indent=2)
+        print(f"Saved presets to {PRESETS_FILE}")
+    except Exception as e:
+        print(f"Error saving presets: {e}")
+
+
+def load_presets():
+    """Load gimbal presets from JSON file."""
+    global gimbal_presets
+
+    if not os.path.exists(PRESETS_FILE):
+        print("No presets file found")
+        return
+
+    try:
+        with open(PRESETS_FILE, 'r') as f:
+            gimbal_presets = json.load(f)
+        total = sum(len(p) for p in gimbal_presets.values())
+        print(f"Loaded {total} presets for {len(gimbal_presets)} gimbals")
+    except Exception as e:
+        print(f"Error loading presets: {e}")
 
 
 # ============== ZT_Python Library Wrapper ==============
@@ -770,6 +838,13 @@ async def connect(sid, environ):
     await sio.emit('atem:status', atem_config, room=sid)
     await sio.emit('atem:mappings', gimbal_atem_mapping, room=sid)
 
+    # Send presets for the active gimbal
+    client_gimbal = get_client_active_gimbal(sid)
+    await sio.emit('preset:list', {
+        'gimbalId': client_gimbal,
+        'presets': gimbal_presets.get(client_gimbal, {})
+    }, room=sid)
+
 
 @sio.event
 async def disconnect(sid):
@@ -981,6 +1056,9 @@ async def handle_atem_set_gimbal_mapping(sid, data):
                 del gimbal_atem_mapping[gimbal_id]
                 print(f'ATEM: Removed mapping for gimbal {gimbal_id}')
 
+        # Save config after mapping change
+        save_atem_config()
+
     await sio.emit('atem:mappings', gimbal_atem_mapping)
 
 
@@ -1067,6 +1145,105 @@ async def handle_atem_set_zoom_position(sid, data):
     port = data.get('port', 1)
     value = data.get('value', 50.0)
     atem_wrapper.set_zoom_position(port, value)
+
+
+# ============== Presets WebSocket Events ==============
+
+@sio.on('preset:save')
+async def handle_preset_save(sid, data):
+    """Save current position as a preset."""
+    global gimbal_presets
+
+    gimbal_id = data.get('gimbalId', active_gimbal_id)
+    preset_num = str(data.get('preset', 1))  # 1-9
+
+    if not gimbal_id:
+        return
+
+    # Get current position
+    state = gimbal_states.get(gimbal_id, gimbal_state)
+    position = state["position"].copy()
+
+    # Store preset
+    if gimbal_id not in gimbal_presets:
+        gimbal_presets[gimbal_id] = {}
+
+    gimbal_presets[gimbal_id][preset_num] = position
+    save_presets()
+
+    print(f'Preset {preset_num} saved for {gimbal_id}: {position}')
+
+    # Notify all clients
+    await sio.emit('preset:list', {
+        'gimbalId': gimbal_id,
+        'presets': gimbal_presets.get(gimbal_id, {})
+    })
+
+
+@sio.on('preset:recall')
+async def handle_preset_recall(sid, data):
+    """Recall a preset position."""
+    global home_animation
+
+    gimbal_id = data.get('gimbalId', active_gimbal_id)
+    preset_num = str(data.get('preset', 1))
+
+    if not gimbal_id or gimbal_id not in gimbal_presets:
+        return
+
+    preset = gimbal_presets[gimbal_id].get(preset_num)
+    if not preset:
+        print(f'Preset {preset_num} not found for {gimbal_id}')
+        return
+
+    print(f'Recalling preset {preset_num} for {gimbal_id}: {preset}')
+
+    # Use home animation system for smooth transition
+    home_animation = {
+        "active": True,
+        "target": preset.copy()
+    }
+
+    # Send to real gimbal if active
+    if is_real_gimbal_active() and gimbal_id in real_gimbals:
+        try:
+            real_gimbals[gimbal_id].set_position(
+                preset["pitch"],
+                preset.get("roll", 0),
+                preset["yaw"]
+            )
+        except Exception as e:
+            print(f"Error recalling preset: {e}")
+
+
+@sio.on('preset:delete')
+async def handle_preset_delete(sid, data):
+    """Delete a preset."""
+    global gimbal_presets
+
+    gimbal_id = data.get('gimbalId', active_gimbal_id)
+    preset_num = str(data.get('preset', 1))
+
+    if gimbal_id in gimbal_presets and preset_num in gimbal_presets[gimbal_id]:
+        del gimbal_presets[gimbal_id][preset_num]
+        save_presets()
+        print(f'Preset {preset_num} deleted for {gimbal_id}')
+
+    await sio.emit('preset:list', {
+        'gimbalId': gimbal_id,
+        'presets': gimbal_presets.get(gimbal_id, {})
+    })
+
+
+@sio.on('preset:getAll')
+async def handle_preset_get_all(sid, data=None):
+    """Get all presets for a gimbal."""
+    gimbal_id = data.get('gimbalId', active_gimbal_id) if data else active_gimbal_id
+
+    await sio.emit('preset:list', {
+        'gimbalId': gimbal_id,
+        'presets': gimbal_presets.get(gimbal_id, {})
+    }, room=sid)
 
 
 @sio.on('gimbal:add')
@@ -1532,8 +1709,10 @@ def main():
     })
     print("Virtual gimbal created (always available)")
 
-    # Load saved gimbal configurations
+    # Load saved configurations
     load_gimbal_config()
+    load_atem_config()
+    load_presets()
 
     # Try to find ZT_Tracking path
     zt_path = args.zt_path

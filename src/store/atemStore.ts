@@ -5,6 +5,9 @@ interface AtemState {
   // Connection
   config: AtemConfig;
 
+  // Error message
+  error: string | null;
+
   // Mappings: gimbalId -> { port, cameraType }
   mappings: AtemMappings;
 
@@ -19,6 +22,7 @@ interface AtemState {
 
 interface AtemActions {
   setConfig: (config: Partial<AtemConfig>) => void;
+  setError: (error: string | null) => void;
   setMappings: (mappings: AtemMappings) => void;
   setGimbalMapping: (gimbalId: string, port: number, cameraType: AtemCameraTypeNum) => void;
   removeGimbalMapping: (gimbalId: string) => void;
@@ -34,6 +38,7 @@ export const useAtemStore = create<AtemStore>((set) => ({
     connected: false,
     connecting: false,
   },
+  error: null,
   mappings: {},
   cameraControls: {
     focus: 50,
@@ -46,7 +51,11 @@ export const useAtemStore = create<AtemStore>((set) => ({
   setConfig: (config) =>
     set((state) => ({
       config: { ...state.config, ...config },
+      // Clear error when connected
+      error: config.connected ? null : state.error,
     })),
+
+  setError: (error) => set({ error }),
 
   setMappings: (mappings) => set({ mappings }),
 
